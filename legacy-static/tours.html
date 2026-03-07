@@ -1,0 +1,27 @@
+﻿<!doctype html>
+<html lang="mn">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tours | Erkhet Solar Tours LLC</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body data-page="tours">
+<header id="site-header"></header>
+<main>
+  <section class="page-hero"><div class="container"><h1 data-i18n="tours.title"></h1><p data-i18n="tours.subtitle"></p></div></section>
+  <section class="section"><div class="container">
+    <div class="filter-row">
+      <select id="tour-filter" class="input">
+        <option value="all" data-i18n="tours.filterAll"></option>
+        <option value="multi" data-i18n="tours.filterMulti"></option>
+        <option value="short" data-i18n="tours.filterShort"></option>
+      </select>
+      <input id="tour-search" class="input" data-i18n-placeholder="tours.search">
+    </div>
+    <div id="tours-list" class="grid cards-3"></div>
+  </div></section>
+</main>
+<footer id="site-footer"></footer>
+<script src="js/site-data.js"></script><script src="js/site.js"></script>
+</body>
+</html>
