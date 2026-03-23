@@ -1,20 +1,32 @@
-﻿import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
+import { AuthProvider } from "@/components/auth/AuthProvider";
+import { AppShell } from "@/components/AppShell";
+import { LocaleProvider } from "@/components/locale/LocaleProvider";
+import { getRequestLocale } from "@/lib/request-locale";
 
 export const metadata: Metadata = {
   title: "Erkhet Solar Tours LLC",
-  description: "Tourism website for Erkhet Solar Tours LLC"
+  description: "Монголын inbound, outbound, domestic аяллын нэгдсэн платформ"
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover"
+};
+
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const locale = await getRequestLocale();
+
   return (
-    <html lang="mn">
+    <html lang={locale}>
       <body>
-        <Header />
-        {children}
-        <Footer />
+        <LocaleProvider initialLocale={locale}>
+          <AuthProvider>
+            <AppShell>{children}</AppShell>
+          </AuthProvider>
+        </LocaleProvider>
       </body>
     </html>
   );

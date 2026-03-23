@@ -1,28 +1,49 @@
-﻿import Link from "next/link";
+﻿"use client";
+
+import Link from "next/link";
+import { useChromeMessages } from "@/components/locale/LocaleProvider";
 import { siteData } from "@/lib/siteData";
 
 export function Footer() {
+  const messages = useChromeMessages();
+
   return (
     <footer className="footer">
-      <div className="container footerGrid">
-        <div>
-          <h4>{siteData.company.nameMn}</h4>
-          <p>Монгол орны байгаль, түүх, соёлыг аюулгүй, мэргэжлийн түвшинд танилцуулна.</p>
+      <div className="container footerTop">
+        <div className="footerIntro">
+          <h3>{siteData.company.nameMn}</h3>
+          <p>{messages.footer.intro}</p>
+          <div className="footerContactList">
+            <a href={`tel:${siteData.company.phone}`}>{siteData.company.phone}</a>
+            <a href={`mailto:${siteData.company.email}`}>{siteData.company.email}</a>
+            <a href={siteData.contacts.facebook} target="_blank" rel="noreferrer">
+              Facebook
+            </a>
+          </div>
         </div>
-        <div>
-          <h4>Холбоо барих</h4>
-          <ul>
-            <li><a href={`tel:${siteData.company.phone}`}>{siteData.company.phone}</a></li>
-            <li><a href={`mailto:${siteData.company.email}`}>{siteData.company.email}</a></li>
-            <li><a href={siteData.contacts.facebook} target="_blank">Facebook</a></li>
-          </ul>
-        </div>
-        <div>
-          <h4>Төлбөр</h4>
-          <ul>{siteData.payment.methods.map((m) => <li key={m}>{m}</li>)}</ul>
+
+        <div className="footerColumns">
+          {messages.footer.groups.map((group) => (
+            <div key={group.title}>
+              <h4>{group.title}</h4>
+              <ul>
+                {group.links.map((link) => (
+                  <li key={link.href}>
+                    <Link href={link.href}>{link.label}</Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </div>
       </div>
-      <div className="container copy">© {new Date().getFullYear()} {siteData.company.name}. Бүх эрх хуулиар хамгаалагдсан.</div>
+
+      <div className="container footerBottom">
+        <span>
+          © {new Date().getFullYear()} {siteData.company.nameMn}. {messages.footer.rights}
+        </span>
+        <span>{siteData.payment.methods.join(" • ")}</span>
+      </div>
     </footer>
   );
 }

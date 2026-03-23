@@ -1,4 +1,4 @@
-﻿# Tech Stack Migration: Next.js + Go + PostgreSQL
+# Tech Stack Migration: Next.js + Go + PostgreSQL
 
 Энэ төсөл одоо 3 хэсэгтэй болсон.
 

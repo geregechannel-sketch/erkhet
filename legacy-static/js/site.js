@@ -1,4 +1,4 @@
-﻿(function () {
+(function () {
   const data = window.SITE_DATA;
   const LANGS = ["mn", "en", "zh", "ru"];
   let lang = localStorage.getItem("lang") || "mn";

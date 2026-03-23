@@ -1,4 +1,4 @@
-﻿window.SITE_DATA = {
+window.SITE_DATA = {
   company: {
     name: "Erkhet Solar Tours LLC",
     nameMn: "Эрхэт Солар Турс ХХК",
