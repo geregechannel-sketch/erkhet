@@ -12,6 +12,7 @@ const copyByLocale = {
     openGuide: "Гарын авлага руу орох",
     paymentEyebrow: "Төлбөр ба бодлого",
     paymentTitle: "Төлбөрийн мэдээлэл",
+    paymentBody: "Төлбөрийн мэдээлэл болон нөхцөлийг захиалга баталгаажсаны дараа танд ойлгомжтой танилцуулна.",
     faqEyebrow: "FAQ",
     faqTitle: "Түгээмэл асуултууд",
     policyEyebrow: "Бодлогууд",
@@ -25,6 +26,7 @@ const copyByLocale = {
     openGuide: "Open travel guide",
     paymentEyebrow: "Payment & policy",
     paymentTitle: "Payment information",
+    paymentBody: "Payment details and terms are shared clearly after your booking is confirmed.",
     faqEyebrow: "FAQ",
     faqTitle: "Frequently asked questions",
     policyEyebrow: "Policies",
@@ -38,6 +40,7 @@ const copyByLocale = {
     openGuide: "Открыть путеводитель",
     paymentEyebrow: "Оплата и политика",
     paymentTitle: "Платежная информация",
+    paymentBody: "Информация об оплате и условиях будет направлена вам после подтверждения бронирования.",
     faqEyebrow: "FAQ",
     faqTitle: "Частые вопросы",
     policyEyebrow: "Политики",
@@ -51,6 +54,7 @@ const copyByLocale = {
     openGuide: "打开旅行指南",
     paymentEyebrow: "支付与政策",
     paymentTitle: "支付信息",
+    paymentBody: "预订确认后，我们会清楚说明支付信息和相关条件。",
     faqEyebrow: "FAQ",
     faqTitle: "常见问题",
     policyEyebrow: "政策",
@@ -83,12 +87,7 @@ export default async function HelpPage() {
             <div className="content stackSm">
               <p className="eyebrow">{copy.paymentEyebrow}</p>
               <h3>{copy.paymentTitle}</h3>
-              <p>{siteData.payment.instructions}</p>
-              <ul className="guideActionList">
-                {siteData.payment.methods.map((method) => (
-                  <li key={method}>{method}</li>
-                ))}
-              </ul>
+              <p>{copy.paymentBody}</p>
             </div>
           </article>
         </div>

@@ -1,8 +1,9 @@
-﻿import { notFound } from "next/navigation";
+import { notFound } from "next/navigation";
 import { BookingPanel } from "@/components/tours/BookingPanel";
 import { SaveTourButton } from "@/components/tours/SaveTourButton";
 import { safeServerApiFetch } from "@/lib/api";
 import { describeDuration, formatBusinessLine, formatCurrency, formatOperationType } from "@/lib/format";
+import { getPublicBusinessLine } from "@/lib/tour-audience";
 import { displayItineraryValue, getStructuredItinerary } from "@/lib/tour-itinerary";
 import type { Tour } from "@/lib/types";
 
@@ -17,6 +18,7 @@ export default async function TourDetailPage({ params }: { params: Promise<{ id:
   }
 
   const itineraryDays = getStructuredItinerary(tour);
+  const publicBusinessLine = getPublicBusinessLine(tour);
   const price = tour.priceAmount
     ? formatCurrency(tour.priceAmount, tour.currency || "MNT")
     : tour.pricingNote || "Үнэ хүсэлтээр";
@@ -49,7 +51,7 @@ export default async function TourDetailPage({ params }: { params: Promise<{ id:
                 </div>
                 <div>
                   <strong>Ангилал</strong>
-                  <p>{formatBusinessLine(tour.businessLine)}</p>
+                  <p>{formatBusinessLine(publicBusinessLine)}</p>
                 </div>
                 <div>
                   <strong>Формат</strong>

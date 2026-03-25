@@ -1,294 +1,454 @@
-﻿import type { Locale } from "@/lib/i18n";
 import { siteData } from "@/lib/siteData";
-import { getWikipediaDestinations, type LocalizedDestinationRegionBase } from "@/lib/wikipedia-destinations";
+import { repairDeep } from "@/lib/text";
+import type { Locale } from "@/lib/i18n";
+import { getWikipediaDestinations, type DestinationRegionId } from "@/lib/wikipedia-destinations";
 
-type ServiceItem = (typeof siteData.services)[number];
-type DestinationItem = LocalizedDestinationRegionBase & {
+type LocalizedList = Record<Locale, string[]>;
+type LocalizedPolicy = { title: string; body: string };
+type LocalizedFaq = { question: string; answer: string };
+type LocalizedService = {
+  id: "esim" | "insurance";
+  title: string;
+  desc: string;
+  image: string;
+  highlights: string[];
+};
+type LocalizedDestinationRegion = {
+  id: DestinationRegionId;
   title: string;
   summary: string;
   season: string;
   style: string;
-};
-type FaqItem = (typeof siteData.faqs)[number];
-type PolicyItem = (typeof siteData.policies)[number];
-
-type RegionTranslation = {
-  title: string;
-  summary: string;
-  season: string;
-  style: string;
+  image: string;
+  places: Awaited<ReturnType<typeof getWikipediaDestinations>>[number]["places"];
 };
 
-const serviceTranslations: Record<Locale, Record<ServiceItem["id"], { title: string; desc: string; highlights: string[] }>> = {
-  mn: {
-    hotel: {
-      title: "Зочид буудал захиалга",
-      desc: "Очих хот, хугацаа, төсөвт тохирсон буудлын хүсэлтийг нэг дор илгээнэ.",
-      highlights: ["Check-in / Check-out", "Өрөөний төрөл", "Зочдын тоо"],
+const businessDirectionsByLocale: LocalizedList = {
+  mn: [
+    "Гадаад жуулчдыг Монголд аялуулах",
+    "Монгол жуулчдыг гадаад руу аялуулах",
+    "дотоодын жуулчдыг Монгол орноороо аялуулах",
+  ],
+  en: [
+    "Host international travelers in Mongolia",
+    "Arrange outbound tours for Mongolian travelers",
+    "Guide domestic travelers across Mongolia",
+  ],
+  ru: [
+    "Принимать иностранных туристов в Монголии",
+    "Организовывать зарубежные поездки для монгольских туристов",
+    "Проводить внутренние туры по Монголии",
+  ],
+  zh: [
+    "接待来蒙古旅游的国际游客",
+    "为蒙古游客组织出境旅行",
+    "带领本地游客游览蒙古各地",
+  ],
+};
+
+const travelStylesByLocale: LocalizedList = {
+  mn: ["Хуваарьт аялал", "Захиалгат аялал", "Өдрийн аялал"],
+  en: ["Scheduled tours", "Custom tours", "Day tours"],
+  ru: ["Туры по расписанию", "Индивидуальные туры", "Однодневные туры"],
+  zh: ["固定团", "定制团", "一日游"],
+};
+
+const valuesByLocale: LocalizedList = {
+  mn: [
+    "Аюулгүй байдал нэн тэргүүнд",
+    "Хариуцлагатай аялал жуулчлал",
+    "Соёлын хүндэтгэл",
+    "Сэтгэл ханамж төвтэй үйлчилгээ",
+    "Шударга, ойлгомжтой мэдээлэл",
+  ],
+  en: [
+    "Safety first",
+    "Responsible travel",
+    "Respect for local culture",
+    "Service built around guest comfort",
+    "Clear and honest information",
+  ],
+  ru: [
+    "Безопасность прежде всего",
+    "Ответственный туризм",
+    "Уважение к культуре",
+    "Сервис с заботой о госте",
+    "Понятная и честная информация",
+  ],
+  zh: [
+    "安全第一",
+    "负责任的旅行方式",
+    "尊重当地文化",
+    "以旅客体验为中心的服务",
+    "清楚透明的信息",
+  ],
+};
+
+const faqsByLocale: Record<Locale, LocalizedFaq[]> = {
+  mn: [
+    {
+      question: "Захиалга хэрхэн баталгаажих вэ?",
+      answer: "Та хүсэлтээ илгээсний дараа бид аяллын боломж, тов, нөхцөлийг танилцуулж баталгаажуулна.",
     },
-    restaurant: {
-      title: "Ресторан захиалга",
-      desc: "Business dinner, family table, private dining хүсэлтийг урьдчилан баталгаажуулна.",
-      highlights: ["Цагийн захиалга", "Хүний тоо", "Хоолны сонголт"],
+    {
+      question: "Төлбөрийн мэдээллийг хэзээ авдаг вэ?",
+      answer: "Захиалга баталгаажих үед төлбөрийн нөхцөл, хугацаа, шилжүүлэх мэдээллийг ойлгомжтой илгээнэ.",
     },
-    flight: {
-      title: "Онгоцны суудал захиалга",
-      desc: "Нислэгийн чиглэл, огноо, суудлын ангилал бүхий хүсэлтийг төвлөрсөн байдлаар илгээнэ.",
-      highlights: ["One-way / Round-trip", "Cabin class", "Зорчигчийн тоо"],
+    {
+      question: "Санал хүсэлтээ хаана илгээх вэ?",
+      answer: "Та холбоо барих хэсэг болон санал хүсэлтийн хэсгээр дамжуулан хүсэлтээ илгээж болно.",
     },
-    taxi: {
-      title: "Такси захиалга",
-      desc: "Airport pickup, city transfer, intercity ride хүсэлтийг урьдчилан захиална.",
-      highlights: ["Тосох / буулгах", "Тээврийн төрөл", "Ирэх цаг"],
+  ],
+  en: [
+    {
+      question: "How is a booking confirmed?",
+      answer: "After you send a request, we confirm availability, timing, and conditions with you.",
     },
-    esim: {
+    {
+      question: "When do I receive payment details?",
+      answer: "Payment timing and transfer details are shared clearly once the booking is confirmed.",
+    },
+    {
+      question: "Where can I send feedback?",
+      answer: "You can contact us through the contact page or the feedback area in your account.",
+    },
+  ],
+  ru: [
+    {
+      question: "Как подтверждается бронирование?",
+      answer: "После вашей заявки мы уточняем доступность, даты и условия, а затем подтверждаем поездку.",
+    },
+    {
+      question: "Когда я получу платежные данные?",
+      answer: "После подтверждения бронирования мы отправим понятную информацию по оплате и срокам.",
+    },
+    {
+      question: "Куда отправить отзыв?",
+      answer: "Вы можете связаться с нами через страницу контактов или раздел отзывов.",
+    },
+  ],
+  zh: [
+    {
+      question: "预订如何确认？",
+      answer: "您提交请求后，我们会与您确认名额、日期和条件。",
+    },
+    {
+      question: "什么时候会收到支付信息？",
+      answer: "预订确认后，我们会清楚说明支付方式、时间和转账信息。",
+    },
+    {
+      question: "在哪里提交反馈？",
+      answer: "您可以通过联系页面或反馈区域向我们发送意见。",
+    },
+  ],
+};
+
+const policiesByLocale: Record<Locale, LocalizedPolicy[]> = {
+  mn: [
+    {
+      title: "Захиалгын бодлого",
+      body: "Захиалга баталгаажсаны дараа тухайн үйлчилгээний боломж, quote, төлбөрийн төлөвөөр баталгаажуулна.",
+    },
+    {
+      title: "Төлбөр ба буцаалтын бодлого",
+      body: "Төлбөрийн төлөв booking record-той шууд холбогдож, refund эсвэл partial refund тохиолдолд finance/admin хэсэгт тэмдэглэгдэнэ.",
+    },
+    {
+      title: "Support ба гомдлын шийдвэрлэлт",
+      body: "Холбоо барих хэсгээр дамжуулан ирсэн бүх санал хүсэлт, гомдлыг бид хүлээн авч шуурхай шийдвэрлэнэ.",
+    },
+  ],
+  en: [
+    {
+      title: "Booking policy",
+      body: "Once a booking is confirmed, availability, quotation, and payment status are confirmed for that service.",
+    },
+    {
+      title: "Payment and refund policy",
+      body: "Payment status is linked to the booking record, and refund or partial refund cases are noted by the finance/admin team.",
+    },
+    {
+      title: "Support and complaint handling",
+      body: "We receive all feedback and complaints sent through the contact section and respond as quickly as possible.",
+    },
+  ],
+  ru: [
+    {
+      title: "Политика бронирования",
+      body: "После подтверждения бронирования доступность услуги, quote и статус оплаты также подтверждаются.",
+    },
+    {
+      title: "Политика оплаты и возврата",
+      body: "Статус оплаты связан с booking record, а refund или partial refund фиксируются в finance/admin разделе.",
+    },
+    {
+      title: "Support и рассмотрение жалоб",
+      body: "Мы принимаем все отзывы и жалобы, поступающие через раздел связи, и стараемся решить их оперативно.",
+    },
+  ],
+  zh: [
+    {
+      title: "预订政策",
+      body: "预订确认后，我们会根据服务可用情况、quote 和支付状态完成确认。",
+    },
+    {
+      title: "支付与退款政策",
+      body: "支付状态会直接关联 booking record，如发生 refund 或 partial refund，会在 finance/admin 部分记录。",
+    },
+    {
+      title: "Support 与投诉处理",
+      body: "我们会接收通过联系页面发送的所有意见与投诉，并尽快处理。",
+    },
+  ],
+};
+
+const fallbackServiceImages: Record<LocalizedService["id"], string> = {
+  esim: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?q=80&w=1200&auto=format&fit=crop",
+  insurance: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?q=80&w=1200&auto=format&fit=crop",
+};
+
+const servicesByLocale: Record<Locale, LocalizedService[]> = {
+  mn: [
+    {
+      id: "esim",
       title: "e-SIM захиалга",
-      desc: "Очих улс, дата багц, идэвхжих огноогоор e-SIM хүсэлт илгээнэ.",
+      desc: "Очих улс, дата багц, идэвхжих өдрөө оруулж e-SIM хүсэлт илгээнэ.",
+      image: siteData.services.find((item) => item.id === "esim")?.image || fallbackServiceImages.esim,
       highlights: ["Улс / бүс", "Дата багц", "Идэвхжих өдөр"],
     },
-    insurance: {
+    {
+      id: "insurance",
       title: "Даатгал захиалга",
-      desc: "Очих улс, хугацаа, аялагчдын тоо, хамрах хүрээгээр аяллын даатгалын хүсэлт илгээнэ.",
-      highlights: ["Улс / бүс", "Хугацаа", "Хамрах хүрээ"],
+      desc: "Очих улс, хугацаа, аялагчдын тоо, хамрах хүрээгээр даатгалын хүсэлт илгээнэ.",
+      image: siteData.services.find((item) => item.id === "insurance")?.image || fallbackServiceImages.insurance,
+      highlights: ["Очих улс", "Хугацаа", "Хамрах хүрээ"],
     },
-  },
-  en: {
-    hotel: {
-      title: "Hotel Booking",
-      desc: "Submit hotel requests matched to your city, dates, and budget in one place.",
-      highlights: ["Check-in / Check-out", "Room type", "Guest count"],
+  ],
+  en: [
+    {
+      id: "esim",
+      title: "e-SIM request",
+      desc: "Send your destination, activation date, and preferred data plan in one request.",
+      image: siteData.services.find((item) => item.id === "esim")?.image || fallbackServiceImages.esim,
+      highlights: ["Country / region", "Data plan", "Activation date"],
     },
-    restaurant: {
-      title: "Restaurant Booking",
-      desc: "Pre-arrange business dinners, family tables, and private dining requests.",
-      highlights: ["Reservation time", "Guest count", "Cuisine preference"],
+    {
+      id: "insurance",
+      title: "Insurance request",
+      desc: "Send destination, travel dates, traveler count, and preferred cover level.",
+      image: siteData.services.find((item) => item.id === "insurance")?.image || fallbackServiceImages.insurance,
+      highlights: ["Destination", "Travel dates", "Coverage"],
     },
-    flight: {
-      title: "Flight Booking",
-      desc: "Send departure, return, route, and cabin-class preferences through one service desk.",
-      highlights: ["One-way / Round-trip", "Cabin class", "Passenger count"],
-    },
-    taxi: {
-      title: "Taxi Booking",
-      desc: "Book airport pickup, city transfers, and intercity rides in advance.",
-      highlights: ["Pickup / Drop-off", "Vehicle type", "Arrival timing"],
-    },
-    esim: {
-      title: "e-SIM Booking",
-      desc: "Request destination-ready e-SIM plans by country, data package, and activation date.",
-      highlights: ["Country / Region", "Data plan", "Activation date"],
-    },
-    insurance: {
-      title: "Insurance Booking",
-      desc: "Submit travel insurance requests by destination, trip dates, traveler count, and coverage level.",
-      highlights: ["Country / Region", "Coverage period", "Coverage level"],
-    },
-  },
-  ru: {
-    hotel: {
-      title: "Бронирование отеля",
-      desc: "Отправляйте запрос на отель с учетом города, дат и бюджета в одном месте.",
-      highlights: ["Заезд / выезд", "Тип номера", "Количество гостей"],
-    },
-    restaurant: {
-      title: "Бронирование ресторана",
-      desc: "Заранее согласовывайте деловые ужины, семейные столы и private dining запросы.",
-      highlights: ["Время брони", "Количество гостей", "Предпочтения по кухне"],
-    },
-    flight: {
-      title: "Бронирование авиабилетов",
-      desc: "Отправляйте пожелания по направлению, датам и классу обслуживания через единый сервис.",
-      highlights: ["В одну сторону / туда-обратно", "Класс", "Количество пассажиров"],
-    },
-    taxi: {
-      title: "Заказ такси",
-      desc: "Заранее оформляйте airport pickup, city transfer и intercity ride.",
-      highlights: ["Точка посадки / высадки", "Тип автомобиля", "Время прибытия"],
-    },
-    esim: {
+  ],
+  ru: [
+    {
+      id: "esim",
       title: "Заказ e-SIM",
-      desc: "Оформляйте e-SIM по стране, пакету данных и дате активации.",
+      desc: "Отправьте страну, пакет данных и дату активации одним запросом.",
+      image: siteData.services.find((item) => item.id === "esim")?.image || fallbackServiceImages.esim,
       highlights: ["Страна / регион", "Пакет данных", "Дата активации"],
     },
-    insurance: {
-      title: "Страховка для поездки",
-      desc: "Отправляйте запрос на туристическую страховку по стране, датам поездки, числу путешественников и уровню покрытия.",
-      highlights: ["Страна / регион", "Период покрытия", "Уровень покрытия"],
+    {
+      id: "insurance",
+      title: "Заказ страховки",
+      desc: "Отправьте страну, даты поездки, число путешественников и уровень покрытия.",
+      image: siteData.services.find((item) => item.id === "insurance")?.image || fallbackServiceImages.insurance,
+      highlights: ["Направление", "Даты поездки", "Покрытие"],
     },
-  },
-  zh: {
-    hotel: {
-      title: "酒店预订",
-      desc: "在一个入口提交符合目的地城市、日期和预算的酒店需求。",
-      highlights: ["入住 / 退房", "房型", "住客人数"],
-    },
-    restaurant: {
-      title: "餐厅预订",
-      desc: "提前安排商务用餐、家庭聚餐和私人晚宴需求。",
-      highlights: ["预订时间", "人数", "餐饮偏好"],
-    },
-    flight: {
-      title: "机票预订",
-      desc: "通过统一服务台提交航线、日期和舱位需求。",
-      highlights: ["单程 / 往返", "舱位等级", "乘客人数"],
-    },
-    taxi: {
-      title: "出租车预订",
-      desc: "提前安排接机、市内接送和城际出行。",
-      highlights: ["上车 / 下车地点", "车辆类型", "到达时间"],
-    },
-    esim: {
-      title: "e-SIM 预订",
-      desc: "按国家、流量包和启用日期提交 e-SIM 请求。",
-      highlights: ["国家 / 地区", "流量包", "启用日期"],
-    },
-    insurance: {
-      title: "旅行保险预订",
-      desc: "按目的地、出行日期、旅客人数和保障范围提交旅行保险需求。",
-      highlights: ["国家 / 地区", "保障期限", "保障级别"],
-    },
-  },
-};
-
-const regionTranslations: Record<Locale, Record<DestinationItem["id"], RegionTranslation>> = {
-  mn: {
-    central: { title: "Төв бүс", summary: "Эртний нийслэл, буддын соёл, төвийн хангайн уудам тал хосолсон түүхэн бүс.", season: "5-10 сар", style: "Соёл, гэр бааз, түүхэн маршрут" },
-    khangai: { title: "Хангайн бүс", summary: "Нуур, галт уулын тогоо, өндөр уулс, нүүдэлчдийн амьдрал хосолсон олон өдрийн алдартай бүс.", season: "6-9 сар", style: "Байгаль, адал явдал, нуурын маршрут" },
-    east: { title: "Зүүн бүс", summary: "Домог, түүх, тал хээр, тахилгат уулс, рашаан сувиллын уур амьсгал бүхий нууцлаг бүс.", season: "5-9 сар", style: "Түүх, рашаан, мөргөлийн аялал" },
-    gobi: { title: "Говийн бүс", summary: "Их говийн уудам тал, улаан хад, манхан элс, хийд мөргөлийн аяллыг хослуулсан хамгийн эрэлттэй бүс.", season: "4-10 сар", style: "Адал явдал, цөл, зураг авалтын маршрут" },
-    ulaanbaatar: { title: "Улаанбаатар орчим", summary: "Хотын соёл, музей, сүм хийд, ойрын өдөр аялал, arrival/departure day-д тохирсон маршрут бүхий бүс.", season: "Жилийн дөрвөн улирал", style: "Хот, богино буудал, өдрийн аялал" },
-  },
-  en: {
-    central: { title: "Central Region", summary: "A historic region that blends ancient capitals, Buddhist heritage, and central steppe landscapes.", season: "May to October", style: "Culture, ger camps, heritage route" },
-    khangai: { title: "Khangai Region", summary: "A classic multi-day area of lakes, volcanic craters, highlands, and nomadic landscapes.", season: "June to September", style: "Nature, adventure, lake route" },
-    east: { title: "Eastern Region", summary: "A quieter region of legends, sacred lakes, healing springs, and pilgrimage-style routes.", season: "May to September", style: "History, wellness, spiritual travel" },
-    gobi: { title: "Gobi Region", summary: "Mongolia's most sought-after desert route with cliffs, dunes, canyons, and monastery visits.", season: "April to October", style: "Adventure, desert, photo expedition" },
-    ulaanbaatar: { title: "Around Ulaanbaatar", summary: "City culture, museums, monasteries, and short tours suited to arrival and departure days.", season: "All year", style: "City, short stay, day tour" },
-  },
-  ru: {
-    central: { title: "Центральный регион", summary: "Исторический регион, где сочетаются древние столицы, буддийское наследие и степные пейзажи.", season: "Май - октябрь", style: "Культура, гер-кэмпы, исторический маршрут" },
-    khangai: { title: "Хангайский регион", summary: "Классический многодневный регион с озерами, вулканами, высокогорьем и кочевыми ландшафтами.", season: "Июнь - сентябрь", style: "Природа, приключения, озерный маршрут" },
-    east: { title: "Восточный регион", summary: "Более тихий регион легенд, священных озер, минеральных источников и паломнических маршрутов.", season: "Май - сентябрь", style: "История, wellness, духовные поездки" },
-    gobi: { title: "Гобийский регион", summary: "Самый востребованный пустынный маршрут Монголии со скалами, дюнами, каньонами и монастырями.", season: "Апрель - октябрь", style: "Приключения, пустыня, фотоэкспедиции" },
-    ulaanbaatar: { title: "Окрестности Улан-Батора", summary: "Городская культура, музеи, монастыри и короткие маршруты для дней прилета и вылета.", season: "Круглый год", style: "Город, короткое пребывание, однодневные туры" },
-  },
-  zh: {
-    central: { title: "中部地区", summary: "融合古都、佛教遗产与中部草原风貌的历史区域。", season: "5 月至 10 月", style: "文化、蒙古包营地、历史线路" },
-    khangai: { title: "杭爱地区", summary: "湖泊、火山口、高地与游牧景观结合的经典多日路线。", season: "6 月至 9 月", style: "自然、探险、湖区路线" },
-    east: { title: "东部地区", summary: "以传说、圣湖、温泉和朝圣氛围著称的宁静区域。", season: "5 月至 9 月", style: "历史、康养、精神之旅" },
-    gobi: { title: "戈壁地区", summary: "蒙古最受欢迎的沙漠线路，结合悬崖、沙丘、峡谷和寺院探访。", season: "4 月至 10 月", style: "探险、沙漠、摄影线路" },
-    ulaanbaatar: { title: "乌兰巴托周边", summary: "适合抵离日的城市文化、博物馆、寺院与短途线路。", season: "全年", style: "城市、短住、一日游" },
-  },
-};
-
-const valuesByLocale: Record<Locale, string[]> = {
-  mn: ["Аюулгүй байдал нэн тэргүүнд", "Хариуцлагатай аялал жуулчлал", "Соёлын хүндэтгэл", "Сэтгэл ханамж төвтэй үйлчилгээ", "Шударга, ойлгомжтой мэдээлэл"],
-  en: ["Safety first", "Responsible travel", "Cultural respect", "Customer-centered service", "Clear and fair information"],
-  ru: ["Безопасность прежде всего", "Ответственный туризм", "Уважение к культуре", "Сервис с фокусом на клиента", "Понятная и честная информация"],
-  zh: ["安全优先", "负责任旅游", "尊重文化", "以客户为中心的服务", "清晰透明的信息"],
-};
-
-const businessDirectionsByLocale: Record<Locale, string[]> = {
-  mn: ["Гадаад жуулчдыг Монголд аялуулах", "Монгол жуулчдыг гадаад руу аялуулах", "Монгол орны дотоодын аяллыг зохион байгуулах"],
-  en: ["Inbound tours in Mongolia", "Outbound trips from Mongolia", "Domestic travel across Mongolia"],
-  ru: ["Въездные туры по Монголии", "Выездные поездки из Монголии", "Внутренние маршруты по Монголии"],
-  zh: ["蒙古入境游", "蒙古出境游", "蒙古国内游"],
-};
-
-const travelStylesByLocale: Record<Locale, string[]> = {
-  mn: ["Хуваарьт аялал", "Захиалгат аялал", "Өдрийн аялал", "Соёл, түүхийн маршрут", "Байгаль, гэр баазын аялал"],
-  en: ["Scheduled tours", "Custom tours", "Day tours", "Culture and history routes", "Nature and ger camp journeys"],
-  ru: ["Туры по расписанию", "Индивидуальные туры", "Однодневные туры", "Культурно-исторические маршруты", "Природа и гер-кэмпы"],
-  zh: ["计划团", "定制团", "一日游", "文化历史线路", "自然与蒙古包营地体验"],
-};
-
-const faqsByLocale: Record<Locale, FaqItem[]> = {
-  mn: [
-    { question: "Захиалгыг заавал бүртгэлтэй хэрэглэгч хийх үү?", answer: "Тийм. Хадгалсан аялал, захиалга, төлбөр, үйлчилгээний хүсэлт, support history бүгд My Account дотор холбогдохын тулд нэвтэрсэн байх шаардлагатай." },
-    { question: "Үнэ тодорхойгүй үйлчилгээ дээр яах вэ?", answer: "Хүсэлт эхлээд service booking record болж хадгалагдана. Дараа нь оператор quote болон нөхцөлийг баталгаажуулж статусыг шинэчилнэ." },
-    { question: "Төлбөр амжилтгүй болбол юу болох вэ?", answer: "Төлбөрийн бичлэг хадгалагдаж, статус нь failed эсвэл cancelled болж admin reconciliation хэсэгт шууд харагдана." },
-  ],
-  en: [
-    { question: "Do bookings require a registered account?", answer: "Yes. Saved tours, bookings, payments, service requests, and support history are linked through My Account." },
-    { question: "What happens when pricing is request-only?", answer: "The request is stored first as a service booking record, then your operator updates the quote and status." },
-    { question: "What if a payment fails?", answer: "The payment record is still stored and appears as failed or cancelled in admin reconciliation." },
-  ],
-  ru: [
-    { question: "Нужна ли учетная запись для бронирования?", answer: "Да. Сохраненные туры, бронирования, платежи, сервисные запросы и история поддержки связываются через личный кабинет." },
-    { question: "Что делать, если цена по запросу?", answer: "Сначала создается service booking record, после чего оператор обновляет предложение и статус." },
-    { question: "Что будет при неудачной оплате?", answer: "Запись об оплате все равно сохраняется и отображается как failed или cancelled в разделе reconciliation." },
   ],
   zh: [
-    { question: "提交预订是否必须注册账号？", answer: "是的。收藏线路、预订、支付、服务请求和支持历史都会通过 My Account 关联。" },
-    { question: "如果价格需要另行确认怎么办？", answer: "系统会先保存服务请求记录，随后由工作人员补充报价和状态。" },
-    { question: "如果支付失败会怎样？", answer: "支付记录仍会保留，并在管理端 reconciliation 中显示为 failed 或 cancelled。" },
+    {
+      id: "esim",
+      title: "e-SIM 申请",
+      desc: "填写目的地、启用日期和流量需求即可提交申请。",
+      image: siteData.services.find((item) => item.id === "esim")?.image || fallbackServiceImages.esim,
+      highlights: ["国家 / 地区", "流量套餐", "启用日期"],
+    },
+    {
+      id: "insurance",
+      title: "保险申请",
+      desc: "填写目的地、出行日期、人数和保障范围即可提交申请。",
+      image: siteData.services.find((item) => item.id === "insurance")?.image || fallbackServiceImages.insurance,
+      highlights: ["目的地", "日期", "保障范围"],
+    },
   ],
 };
 
-const policiesByLocale: Record<Locale, PolicyItem[]> = {
-  mn: [
-    { title: "Захиалгын бодлого", body: "Захиалга баталгаажсаны дараа тухайн үйлчилгээний боломж, quote, төлбөрийн төлөвөөр баталгаажуулна." },
-    { title: "Төлбөр ба буцаалтын бодлого", body: "Төлбөрийн төлөв booking record-той шууд холбогдож, refund эсвэл partial refund тохиолдолд finance/admin хэсэгт тэмдэглэгдэнэ." },
-    { title: "Support ба гомдлын шийдвэрлэлт", body: "Public contact болон My Account support form-оор ирсэн бүх хүсэлт admin support history дээр төвлөрнө." },
-  ],
-  en: [
-    { title: "Booking policy", body: "A booking is confirmed against actual availability, quote, and payment status." },
-    { title: "Payment and refund policy", body: "Payment status is tied directly to the booking record, and refund events are tracked in finance and admin workflows." },
-    { title: "Support and complaint handling", body: "Requests submitted from the public site and My Account are centralized in admin support history." },
-  ],
-  ru: [
-    { title: "Политика бронирования", body: "Бронирование подтверждается по наличию мест, коммерческому предложению и статусу оплаты." },
-    { title: "Политика оплаты и возвратов", body: "Статус оплаты напрямую связан с booking record, а возвраты фиксируются в finance и admin процессе." },
-    { title: "Поддержка и жалобы", body: "Все обращения с публичного сайта и из My Account собираются в admin support history." },
-  ],
-  zh: [
-    { title: "预订政策", body: "预订会根据实际库存、报价和支付状态完成确认。" },
-    { title: "支付与退款政策", body: "支付状态直接绑定 booking record，退款会在财务和管理流程中记录。" },
-    { title: "支持与投诉处理", body: "来自公开网站和 My Account 的请求都会汇总到管理端支持历史中。" },
-  ],
+const destinationRegionMeta: Record<
+  DestinationRegionId,
+  Record<Locale, Omit<LocalizedDestinationRegion, "id" | "image" | "places">>
+> = {
+  central: {
+    mn: {
+      title: "Төв бүс",
+      summary: "Түүх, соёл, эзэнт гүрний ул мөрийг нэг дор харуулах төвийн маршрут.",
+      season: "5-10 сар",
+      style: "Түүхэн аялал",
+    },
+    en: {
+      title: "Central Region",
+      summary: "A route that brings together imperial history, culture, and heritage in central Mongolia.",
+      season: "May to October",
+      style: "Historic route",
+    },
+    ru: {
+      title: "Центральный регион",
+      summary: "Маршрут с историей империи, культурой и главными наследными точками центральной Монголии.",
+      season: "Май – октябрь",
+      style: "Исторический маршрут",
+    },
+    zh: {
+      title: "中部地区",
+      summary: "集中展示帝国历史、文化与遗产地标的蒙古中部路线。",
+      season: "5 月至 10 月",
+      style: "历史线路",
+    },
+  },
+  khangai: {
+    mn: {
+      title: "Хангайн бүс",
+      summary: "Нуур, гол, галт уулын тогтоц, ногоон уулстай байгалийн аяллын бүс.",
+      season: "6-9 сар",
+      style: "Байгалийн аялал",
+    },
+    en: {
+      title: "Khangai Region",
+      summary: "A green mountain region shaped by lakes, rivers, volcanic landforms, and cool summer stays.",
+      season: "June to September",
+      style: "Nature route",
+    },
+    ru: {
+      title: "Хангайский регион",
+      summary: "Природный маршрут с озерами, реками, вулканическими формами и зелеными горами.",
+      season: "Июнь – сентябрь",
+      style: "Природный маршрут",
+    },
+    zh: {
+      title: "杭爱地区",
+      summary: "以湖泊、河流、火山地貌和绿色山地为特色的自然旅行区域。",
+      season: "6 月至 9 月",
+      style: "自然线路",
+    },
+  },
+  east: {
+    mn: {
+      title: "Зүүн бүс",
+      summary: "Өргөн тал, нүүдлийн шувуу, хилийн нуур, дархан цаазат газрын онцлогтой бүс.",
+      season: "6-9 сар",
+      style: "Тал нутгийн аялал",
+    },
+    en: {
+      title: "Eastern Region",
+      summary: "Open steppe landscapes, migratory birds, border lakes, and protected grassland reserves.",
+      season: "June to September",
+      style: "Steppe route",
+    },
+    ru: {
+      title: "Восточный регион",
+      summary: "Широкие степи, перелетные птицы, приграничные озера и заповедные территории.",
+      season: "Июнь – сентябрь",
+      style: "Степной маршрут",
+    },
+    zh: {
+      title: "东部地区",
+      summary: "拥有广阔草原、候鸟、边境湖泊和保护区的东部线路。",
+      season: "6 月至 9 月",
+      style: "草原线路",
+    },
+  },
+  gobi: {
+    mn: {
+      title: "Говийн бүс",
+      summary: "Элсэн манхан, хавцал, цохио, говийн уудам орон зайг мэдрүүлэх онцгой бүс.",
+      season: "4-10 сар",
+      style: "Говийн аялал",
+    },
+    en: {
+      title: "Gobi Region",
+      summary: "Desert canyons, giant dunes, layered cliffs, and the wide landscapes of the Gobi.",
+      season: "April to October",
+      style: "Desert route",
+    },
+    ru: {
+      title: "Регион Гоби",
+      summary: "Пустынные каньоны, большие дюны, цветные обрывы и просторные пейзажи Гоби.",
+      season: "Апрель – октябрь",
+      style: "Пустынный маршрут",
+    },
+    zh: {
+      title: "戈壁地区",
+      summary: "由峡谷、沙丘、彩色断崖和广阔荒漠景观组成的经典路线。",
+      season: "4 月至 10 月",
+      style: "戈壁线路",
+    },
+  },
+  ulaanbaatar: {
+    mn: {
+      title: "Улаанбаатар орчим",
+      summary: "Нийслэлийн өдөр аялал, соёлын зогсоол, хотын панорам, түүхэн дурсгалуудтай маршрут.",
+      season: "Жилийн дөрвөн улирал",
+      style: "Хотын аялал",
+    },
+    en: {
+      title: "Around Ulaanbaatar",
+      summary: "City highlights, cultural landmarks, viewpoints, and easy day-trip stops around the capital.",
+      season: "All year",
+      style: "City route",
+    },
+    ru: {
+      title: "Окрестности Улан-Батора",
+      summary: "Городские достопримечательности, культурные точки, панорамы и удобные однодневные выезды вокруг столицы.",
+      season: "Круглый год",
+      style: "Городской маршрут",
+    },
+    zh: {
+      title: "乌兰巴托周边",
+      summary: "包含城市亮点、文化景点、观景点与便捷一日游站点的首都周边路线。",
+      season: "全年",
+      style: "城市线路",
+    },
+  },
 };
-
-export function getLocalizedServices(locale: Locale): ServiceItem[] {
-  return siteData.services.map((service) => ({
-    ...service,
-    ...serviceTranslations[locale][service.id],
-  }));
-}
-
-export async function getLocalizedDestinations(locale: Locale): Promise<DestinationItem[]> {
-  const destinations = await getWikipediaDestinations(locale);
-
-  return destinations.map((destination) => {
-    const translated = regionTranslations[locale][destination.id];
-    return {
-      ...destination,
-      title: translated.title,
-      summary: translated.summary,
-      season: translated.season,
-      style: translated.style,
-    };
-  });
-}
-
-export function getLocalizedValues(locale: Locale) {
-  return valuesByLocale[locale];
-}
 
 export function getLocalizedBusinessDirections(locale: Locale) {
-  return businessDirectionsByLocale[locale];
+  return repairDeep(businessDirectionsByLocale[locale]);
 }
 
 export function getLocalizedTravelStyles(locale: Locale) {
-  return travelStylesByLocale[locale];
+  return repairDeep(travelStylesByLocale[locale]);
+}
+
+export function getLocalizedValues(locale: Locale) {
+  return repairDeep(valuesByLocale[locale]);
 }
 
 export function getLocalizedFaqs(locale: Locale) {
-  return faqsByLocale[locale];
+  return repairDeep(faqsByLocale[locale]);
 }
 
 export function getLocalizedPolicies(locale: Locale) {
-  return policiesByLocale[locale];
+  return repairDeep(policiesByLocale[locale]);
 }
 
+export function getLocalizedServices(locale: Locale) {
+  return repairDeep(servicesByLocale[locale]);
+}
 
+export async function getLocalizedDestinations(locale: Locale): Promise<LocalizedDestinationRegion[]> {
+  const baseRegions = await getWikipediaDestinations(locale);
 
+  return repairDeep(
+    baseRegions.map((region) => {
+      const meta = destinationRegionMeta[region.id][locale];
+      return {
+        id: region.id,
+        title: meta.title,
+        summary: meta.summary,
+        season: meta.season,
+        style: meta.style,
+        image: region.image,
+        places: region.places,
+      };
+    }),
+  );
+}

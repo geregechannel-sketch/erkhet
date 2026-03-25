@@ -4151,3 +4151,18 @@ h3,
   }
 }
 /* itinerary-structure-end */
+.travelAdviceCard .content {
+  padding: 24px;
+}
+
+.travelAdviceLabel {
+  font-weight: 800;
+  color: var(--brand-strong);
+}
+
+.travelAdviceField {
+  min-height: 320px;
+  line-height: 1.9;
+  resize: none;
+  background: rgba(255, 255, 255, 0.94);
+}

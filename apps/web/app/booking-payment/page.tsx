@@ -16,14 +16,17 @@ const copyByLocale = {
   mn: {
     eyebrow: "Booking & Payment",
     title: "Захиалга / Төлбөр",
-    guestBody: "Хийсэн захиалга, үүсгэсэн төлбөр, баталгаажуулалтын төлөвөө нэг дэлгэцээс харахын тулд нэвтэрнэ үү.",
-    userBody: "Захиалга, төлбөр, төлөв, payment reference-ээ нэг дэлгэцээс хянаарай.",
+    guestBody: "Хийсэн захиалга, төлбөрийн мэдээллээ нэг дороос харахын тулд нэвтэрнэ үү.",
+    userBody: "Захиалга, төлбөрийн мэдээллээ энэ хэсгээс хараарай.",
     login: "Нэвтрэх",
     register: "Бүртгүүлэх",
-    processTitle: "Захиалгын дараах дараалал",
-    processItems: ["Захиалга үүснэ", "Төлбөрийн хүсэлт холбогдоно", "Баталгаажсан төлөв account дээр шинэчлэгдэнэ"],
-    liveStatus: "Live status",
-    accountLinked: "Booking, payment, support урсгалууд account-тай холбогдсон байдлаар ажиллаж байна.",
+    processTitle: "Төлбөрийн мэдээлэл",
+    processItems: [
+      "Захиалга баталгаажсаны дараа төлбөрийн мэдээллийг танд хүргэнэ.",
+      "Төлбөр хийгдсэний дараа мэдээлэл шинэчлэгдэнэ.",
+    ],
+    liveStatus: "Таны мэдээлэл",
+    accountLinked: "Таны захиалга, төлбөрийн мэдээлэл энэ хэсэгт харагдана.",
     myBookings: "Миний захиалгууд",
     myPayments: "Төлбөрүүд",
     totalBookings: "Нийт захиалга",
@@ -254,7 +257,7 @@ export default function BookingPaymentPage() {
 
             <article className="card bookingInfoCard">
               <div className="content stackSm">
-                <p className="eyebrow">Process</p>
+                <p className="eyebrow">Мэдээлэл</p>
                 <h3>{copy.processTitle}</h3>
                 <div className="paymentTimeline">
                   {copy.processItems.map((item, index) => (

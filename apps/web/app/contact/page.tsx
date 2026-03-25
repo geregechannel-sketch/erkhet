@@ -8,12 +8,12 @@ import { siteData } from "@/lib/siteData";
 
 const copyByLocale = {
   mn: {
-    eyebrow: "Contact & Support",
-    title: "Холбоо барих / Дэмжлэг",
-    body: "Public contact form нь хэрэглэгчийн account болон admin support history-тэй шууд холбогддог. Иймээс таны хүсэлт замдаа алдагдахгүй, статус нь дотоод систем дээр хянагдана.",
-    flowEyebrow: "Response flow",
-    flowTitle: "Хүсэлтийн дараах дараалал",
-    flowItems: ["Support reference үүснэ", "Admin талд шинэ хүсэлтээр орж ирнэ", "Төлөв, тэмдэглэл, шийдвэрлэлтийг шат дараатай хөтөлнө"],
+    eyebrow: "Холбоо барих",
+    title: "Холбоо барих",
+    body: "Та бүхэн бидэнтэй бүх сувгаар дамжуулан холбогдох боломжтой. Бид тантай эргэн хурдан хугацаанд холбогдох болно",
+    flowEyebrow: "Хурдан холбоо",
+    flowTitle: "Бидэнтэй холбогдох сувгууд",
+    flowItems: ["Утас болон и-мэйлээр шууд холбогдоно.", "Facebook хуудсаар мессеж үлдээнэ.", "Вичат QR ашиглан шууд холбогдоно."],
     formTitle: "Хүсэлт илгээх",
     typeSupport: "Дэмжлэгийн хүсэлт",
     typeFeedback: "Санал хүсэлт",
@@ -25,18 +25,18 @@ const copyByLocale = {
     message: "Тайлбар",
     submitting: "Илгээж байна...",
     submit: "Илгээх",
-    success: "Таны хүсэлт амжилттай илгээгдлээ. Систем автоматаар хариу үүсгэж, admin support history дээр бүртгэлээ.",
+    success: "Таны хүсэлт амжилттай илгээгдлээ. Бид тантай аль болох хурдан эргэн холбогдоно.",
     error: "Хүсэлт илгээхэд алдаа гарлаа.",
     contactTitle: "Албан ёсны холбоо барих мэдээлэл",
-    qrTitle: "QR холбоос",
+    qrTitle: "Вичат холбоос",
   },
   en: {
-    eyebrow: "Contact & Support",
-    title: "Contact / Support",
-    body: "The public contact form is linked directly to the customer account and admin support history so requests stay traceable.",
-    flowEyebrow: "Response flow",
-    flowTitle: "What happens after submission",
-    flowItems: ["A support reference is created", "The request appears in admin support history", "Status and notes are updated through the workflow"],
+    eyebrow: "Contact",
+    title: "Contact",
+    body: "You can reach us through all available channels. We will get back to you as soon as possible.",
+    flowEyebrow: "Quick contact",
+    flowTitle: "Ways to reach us",
+    flowItems: ["Call or email us directly.", "Leave a message on Facebook.", "Scan the WeChat QR to connect instantly."],
     formTitle: "Send a request",
     typeSupport: "Support request",
     typeFeedback: "Feedback",
@@ -48,18 +48,18 @@ const copyByLocale = {
     message: "Message",
     submitting: "Sending...",
     submit: "Send",
-    success: "Your request has been submitted. The system also created an automatic support reply.",
+    success: "Your request has been submitted. We will contact you as soon as possible.",
     error: "Failed to send request.",
     contactTitle: "Official contact details",
-    qrTitle: "QR links",
+    qrTitle: "WeChat QR",
   },
   ru: {
-    eyebrow: "Contact & Support",
-    title: "Связь / Поддержка",
-    body: "Публичная contact form напрямую связана с кабинетом клиента и admin support history, поэтому запросы не теряются.",
-    flowEyebrow: "Response flow",
-    flowTitle: "Что происходит после отправки",
-    flowItems: ["Создается support reference", "Запрос появляется в admin support history", "Статус и заметки обновляются по workflow"],
+    eyebrow: "Контакты",
+    title: "Связаться с нами",
+    body: "Вы можете связаться с нами по всем доступным каналам. Мы постараемся ответить как можно быстрее.",
+    flowEyebrow: "Быстрая связь",
+    flowTitle: "Как с нами связаться",
+    flowItems: ["Позвоните или напишите на email.", "Оставьте сообщение на Facebook.", "Подключитесь через QR-код WeChat."],
     formTitle: "Отправить запрос",
     typeSupport: "Support request",
     typeFeedback: "Feedback",
@@ -71,18 +71,18 @@ const copyByLocale = {
     message: "Сообщение",
     submitting: "Отправка...",
     submit: "Отправить",
-    success: "Запрос отправлен. Система также создала автоматический ответ в истории поддержки.",
+    success: "Запрос отправлен. Мы свяжемся с вами как можно скорее.",
     error: "Не удалось отправить запрос.",
     contactTitle: "Официальные контакты",
-    qrTitle: "QR ссылки",
+    qrTitle: "WeChat QR",
   },
   zh: {
-    eyebrow: "Contact & Support",
-    title: "联系 / 支持",
-    body: "公开 contact form 会直接关联用户账户与 admin support history，因此请求不会丢失。",
-    flowEyebrow: "Response flow",
-    flowTitle: "提交后的流程",
-    flowItems: ["生成 support reference", "请求进入 admin support history", "系统按 workflow 更新状态与备注"],
+    eyebrow: "联系",
+    title: "联系我们",
+    body: "您可以通过所有公开渠道与我们联系，我们会尽快回复您。",
+    flowEyebrow: "快速联系",
+    flowTitle: "联系方式",
+    flowItems: ["可直接电话或邮件联系。", "可在 Facebook 留言。", "可扫描 WeChat 二维码快速沟通。"],
     formTitle: "提交请求",
     typeSupport: "Support request",
     typeFeedback: "Feedback",
@@ -94,10 +94,10 @@ const copyByLocale = {
     message: "说明",
     submitting: "发送中...",
     submit: "发送",
-    success: "请求已提交，系统同时生成了自动支持回复。",
+    success: "请求已提交，我们会尽快与您联系。",
     error: "发送请求失败。",
     contactTitle: "官方联系方式",
-    qrTitle: "QR 链接",
+    qrTitle: "WeChat 二维码",
   },
 } as const;
 
@@ -200,12 +200,8 @@ export default function ContactPage() {
                 <h3>{copy.qrTitle}</h3>
                 <div className="qrGrid">
                   <figure>
-                    <img src={siteData.contacts.telegramQr} alt="Telegram QR" />
-                    <figcaption>Telegram</figcaption>
-                  </figure>
-                  <figure>
                     <img src={siteData.contacts.wechatQr} alt="WeChat QR" />
-                    <figcaption>WeChat</figcaption>
+                    <figcaption>{locale === "mn" ? "Вичат" : "WeChat"}</figcaption>
                   </figure>
                 </div>
               </div>

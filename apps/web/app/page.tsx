@@ -17,8 +17,8 @@ const copyByLocale = {
   mn: {
     shortcuts: [
       {
-        title: "Аяллын гарын авлага",
-        body: "Виз, бэлтгэл, очих газрын зөвлөмж, бодлого, FAQ мэдээллээ нэг дороос харах хэсэг.",
+        title: "Аялалын үеийн зөвлөгөө",
+        body: "Аяллын үеэр хэрэг болох ерөнхий зөвлөгөө, анхаарах зүйлс, авч явах хэрэгтэй зүйлсийг нэг дороос хараарай.",
         href: "/travel-guide",
       },
       {
@@ -32,7 +32,7 @@ const copyByLocale = {
         href: "/enquire/step/1",
       },
     ],
-    heroEyebrow: "2016 оноос хойш",
+    heroEyebrow: "2025 оноос",
     heroTitle: "Монгол, гадаад, дотоод аяллаа нэг системээс төлөвлөж, захиалж, хянаарай",
     heroBody: "Эрхэт Солар Турс ХХК нь аяллын мэдээлэл, захиалга, төлбөр, үйлчилгээний хүсэлт, хэрэглэгчийн удирдлагыг нэг урсгал дээр төвлөрүүлсэн аяллын платформоор ажиллаж байна.",
     heroPrimaryCta: "Аяллууд үзэх",
@@ -64,7 +64,7 @@ const copyByLocale = {
       { title: "Booking / Payment", body: "Track bookings, payment records, and statuses from your account and booking center.", href: "/booking-payment" },
       { title: "10-Step Planning", body: "A structured enquiry flow for goals, route, budget, and supporting services.", href: "/enquire/step/1" },
     ],
-    heroEyebrow: "Since 2016",
+    heroEyebrow: "Since 2025",
     heroTitle: "Plan, book, and manage your Mongolia and international trips from one system",
     heroBody: "Erkhet Solar Tours LLC brings travel information, bookings, payments, service requests, and customer management into one connected platform.",
     heroPrimaryCta: "Browse tours",
@@ -96,7 +96,7 @@ const copyByLocale = {
       { title: "Бронирование / Оплата", body: "Отслеживайте бронирования, платежи и статусы из кабинета и booking center.", href: "/booking-payment" },
       { title: "Планирование в 10 шагов", body: "Пошаговый сценарий для маршрута, бюджета и дополнительных услуг.", href: "/enquire/step/1" },
     ],
-    heroEyebrow: "С 2016 года",
+    heroEyebrow: "С 2025 года",
     heroTitle: "Планируйте, бронируйте и отслеживайте поездки из одной системы",
     heroBody: "Erkhet Solar Tours LLC объединяет туристическую информацию, бронирования, платежи, сервисные запросы и управление клиентами в одной платформе.",
     heroPrimaryCta: "Смотреть туры",
@@ -128,7 +128,7 @@ const copyByLocale = {
       { title: "预订 / 支付", body: "在账户和 booking center 中跟踪预订、支付记录和状态。", href: "/booking-payment" },
       { title: "10 步规划", body: "按步骤提交路线、预算与附加服务需求。", href: "/enquire/step/1" },
     ],
-    heroEyebrow: "自 2016 年起",
+    heroEyebrow: "自 2025 年起",
     heroTitle: "在一个系统中规划、预订并管理蒙古及国际行程",
     heroBody: "Erkhet Solar Tours LLC 将旅游信息、预订、支付、服务请求和客户管理整合到一个平台中。",
     heroPrimaryCta: "查看线路",

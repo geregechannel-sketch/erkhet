@@ -3,17 +3,16 @@
 const rawSiteData = {
   company: {
     name: "Erkhet Solar Tours LLC",
-    nameMn: "Ð­Ñ€Ñ…ÑÑ‚ Ð¡Ð¾Ð»Ð°Ñ€ Ð¢ÑƒÑ€Ñ Ð¥Ð¥Ðš",
-    founded: "2016",
+    nameMn: "Эрхэт Солар Турс ХХК",
+    founded: "2025",
     phone: "+976 95633513",
-    email: "erkhetsolartours@gmail.com",
+    email: "erhetsolartours@gmail.com",
     address: "",
     logo: "/assets/logo.jpg"
   },
   contacts: {
     facebook: "https://www.facebook.com/share/1bzQfpFhu3/",
-    telegramQr: "/assets/telegram-qr.jpg",
-    wechatQr: "/assets/wechat-qr.jpg"
+        wechatQr: "/assets/wechat-qr.jpg"
   },
   payment: {
     methods: ["QPay (MN)", "Visa/Mastercard (Stripe)"],
@@ -302,4 +301,5 @@ const rawSiteData = {
 };
 
 export const siteData = repairDeep(rawSiteData);
+
 

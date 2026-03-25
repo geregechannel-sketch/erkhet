@@ -77,13 +77,13 @@ type ChromeMessages = {
 const rawChromeMessages: Record<Locale, ChromeMessages> = {
   mn: {
     brandTagline: "Монгол аяллын зөвлөх үйлчилгээ",
-    goMongolia: "Монгол руу яв",
+    goMongolia: "Миний аялал",
     mainNav: [
       { href: "/about", label: "Бидний тухай" },
       { href: "/tours", label: "Аяллууд" },
       { href: "/daily-tours", label: "Өдрийн аялал" },
       { href: "/destinations", label: "Чиглэлүүд" },
-      { href: "/travel-guide", label: "Аяллын гарын авлага" },
+      { href: "/travel-guide", label: "Аялалын үеийн зөвлөгөө" },
       { href: "/services", label: "Үйлчилгээ" },
       { href: "/reviews", label: "Сэтгэгдэл" },
       { href: "/booking-payment", label: "Захиалга / Төлбөр" },
@@ -120,7 +120,7 @@ const rawChromeMessages: Record<Locale, ChromeMessages> = {
           title: "Компанийн тухай",
           links: [
             { href: "/about", label: "Бидний тухай" },
-            { href: "/travel-guide", label: "Аяллын гарын авлага" },
+            { href: "/travel-guide", label: "Аялалын үеийн зөвлөгөө" },
             { href: "/reviews", label: "Сэтгэгдэл" },
             { href: "/contact", label: "Холбоо барих" },
           ],
@@ -149,7 +149,7 @@ const rawChromeMessages: Record<Locale, ChromeMessages> = {
   },
   en: {
     brandTagline: "Travel advisory and booking services for Mongolia",
-    goMongolia: "Go Mongolia",
+    goMongolia: "My Trip",
     mainNav: [
       { href: "/about", label: "About" },
       { href: "/tours", label: "Tours" },
@@ -221,7 +221,7 @@ const rawChromeMessages: Record<Locale, ChromeMessages> = {
   },
   ru: {
     brandTagline: "Туристические консультации и бронирование по Монголии",
-    goMongolia: "В Монголию",
+    goMongolia: "Моё путешествие",
     mainNav: [
       { href: "/about", label: "О нас" },
       { href: "/tours", label: "Туры" },
@@ -293,7 +293,7 @@ const rawChromeMessages: Record<Locale, ChromeMessages> = {
   },
   zh: {
     brandTagline: "蒙古旅行咨询与预订服务",
-    goMongolia: "去蒙古",
+    goMongolia: "我的旅程",
     mainNav: [
       { href: "/about", label: "关于我们" },
       { href: "/tours", label: "旅游线路" },

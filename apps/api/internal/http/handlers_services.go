@@ -40,7 +40,7 @@ func (s Server) createServiceBooking(w http.ResponseWriter, r *http.Request, ses
 		writeError(w, http.StatusBadRequest, "invalid payload")
 		return
 	}
-	if !oneOf(input.ServiceType, "hotel", "restaurant", "flight", "taxi", "esim", "insurance") {
+	if !oneOf(input.ServiceType, "esim", "insurance") {
 		writeError(w, http.StatusBadRequest, "invalid service type")
 		return
 	}

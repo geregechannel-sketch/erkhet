@@ -11,6 +11,7 @@ const accountNav = [
   { href: "/account/bookings", label: "Миний захиалгууд" },
   { href: "/account/payments", label: "Төлбөр / Баримт" },
   { href: "/account/support", label: "Дэмжлэг / Хүсэлт" },
+  { href: "/account/travel-guide", label: "Аялалын үеийн зөвлөгөө" },
 ];
 
 function isCurrent(pathname: string, href: string) {
@@ -70,7 +71,7 @@ export function AccountShell({ children }: { children: ReactNode }) {
             <p>{getAccountSummary(user.email)}</p>
             <div className="miniButtonGroup">
               <Link href="/booking-payment" className="miniActionLink">Захиалга / Төлбөр</Link>
-              <Link href="/travel-guide" className="miniActionLink">Аяллын гарын авлага</Link>
+              <Link href="/account/travel-guide" className="miniActionLink">Аялалын үеийн зөвлөгөө</Link>
             </div>
           </div>
 

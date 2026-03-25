@@ -374,24 +374,29 @@ const regionSeeds: RegionSeed[] = [
 
 const fetchWikipediaSummary = cache(async (locale: Locale, title: string) => {
   const host = wikipediaHostByLocale[locale];
-  const response = await fetch(`https://${host}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`, {
-    headers: {
-      Accept: "application/json",
-      "User-Agent": "ErkhetSolarTours/1.0 (erkhetsolartours@gmail.com)",
-    },
-    next: { revalidate: 86400 },
-  });
 
-  if (!response.ok) {
+  try {
+    const response = await fetch(`https://${host}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`, {
+      headers: {
+        Accept: "application/json",
+        "User-Agent": "ErkhetSolarTours/1.0 (erkhetsolartours@gmail.com)",
+      },
+      next: { revalidate: 86400 },
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const payload = (await response.json()) as WikipediaSummaryPayload;
+    return {
+      extract: payload.extract?.trim(),
+      image: payload.originalimage?.source || payload.thumbnail?.source || "",
+      url: payload.content_urls?.desktop?.page || buildWikipediaUrl(host, title),
+    };
+  } catch {
     return null;
   }
-
-  const payload = (await response.json()) as WikipediaSummaryPayload;
-  return {
-    extract: payload.extract?.trim(),
-    image: payload.originalimage?.source || payload.thumbnail?.source || "",
-    url: payload.content_urls?.desktop?.page || buildWikipediaUrl(host, title),
-  };
 });
 
 function buildWikipediaUrl(host: string, title: string) {
@@ -431,4 +436,5 @@ export async function getWikipediaDestinations(locale: Locale): Promise<Localize
     }),
   );
 }
+
 

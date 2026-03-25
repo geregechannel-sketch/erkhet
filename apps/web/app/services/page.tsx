@@ -12,8 +12,9 @@ import { siteData } from "@/lib/siteData";
 import type { ServiceBooking } from "@/lib/types";
 
 type ServiceType = ServiceBooking["serviceType"];
+type PublicServiceType = "esim" | "insurance";
 type ServiceCard = {
-  id: ServiceType;
+  id: PublicServiceType;
   title: string;
   desc: string;
   image: string;
@@ -24,7 +25,7 @@ const copyByLocale = {
   mn: {
     eyebrow: "Service Desk",
     title: "Үйлчилгээний захиалга",
-    body: "Зочид буудал, ресторан, онгоцны суудал, такси, e-SIM, даатгалын хүсэлтээ нэг цонхоор илгээж, төлөвөө өөрийн бүртгэлээс хянаарай.",
+    body: "e-SIM болон аяллын даатгалын хүсэлтээ эндээс илгээж, төлөвөө өөрийн бүртгэлээс хянаарай.",
     actionBook: "Захиалах",
     actionLoginBook: "Нэвтэрч захиалах",
     selected: "Сонгосон үйлчилгээ",
@@ -70,10 +71,6 @@ const copyByLocale = {
       completed: "Дууссан",
     },
     intros: {
-      hotel: "Очих хот, буудлын зэрэглэл, өрөөний тоо, зочдын мэдээллээ оруулна.",
-      restaurant: "Хот, огноо, цаг, хүний тоо, хоолны төрлөө оруулна.",
-      flight: "Нисэх чиглэл, явах/буцах өдөр, cabin class, зорчигчийн тоогоо оруулна.",
-      taxi: "Тосох газар, буулгах газар, цаг, тээврийн хэрэгслийн хэрэгцээгээ оруулна.",
       esim: "Очих улс, идэвхжих өдөр, дата багцын хэрэгцээгээ оруулна.",
       insurance: "Очих улс, даатгалын хугацаа, аялагчдын тоо, хамрах хүрээгээ оруулна.",
     },
@@ -81,7 +78,7 @@ const copyByLocale = {
   en: {
     eyebrow: "Service Desk",
     title: "Service Booking",
-    body: "Submit hotel, restaurant, flight, taxi, e-SIM, and insurance requests from one place and track their status from your account.",
+    body: "Submit e-SIM and travel insurance requests here and track their status from your account.",
     actionBook: "Book now",
     actionLoginBook: "Sign in to book",
     selected: "Selected service",
@@ -120,10 +117,6 @@ const copyByLocale = {
     adminNote: "Admin note",
     statuses: { new: "New", in_review: "In review", quoted: "Quoted", confirmed: "Confirmed", cancelled: "Cancelled", completed: "Completed" },
     intros: {
-      hotel: "Enter your city, hotel class, room count, and guest details.",
-      restaurant: "Provide city, date, time, guest count, and cuisine preference.",
-      flight: "Enter route, departure and return dates, cabin class, and passenger count.",
-      taxi: "Enter pickup, drop-off, schedule, and vehicle preferences.",
       esim: "Select destination country, activation date, and preferred data plan.",
       insurance: "Enter destination, coverage dates, traveler count, and preferred protection level.",
     },
@@ -131,7 +124,7 @@ const copyByLocale = {
   ru: {
     eyebrow: "Service Desk",
     title: "Заказ услуг",
-    body: "Отправляйте запросы на отель, ресторан, авиабилеты, такси, e-SIM и страховку из одного окна и отслеживайте статус в кабинете.",
+    body: "Отправляйте запросы на e-SIM и туристическую страховку и отслеживайте статус в кабинете.",
     actionBook: "Забронировать",
     actionLoginBook: "Войти и забронировать",
     selected: "Выбранная услуга",
@@ -170,10 +163,6 @@ const copyByLocale = {
     adminNote: "Admin note",
     statuses: { new: "Новый", in_review: "На проверке", quoted: "Коммерческое предложение", confirmed: "Подтверждено", cancelled: "Отменено", completed: "Завершено" },
     intros: {
-      hotel: "Укажите город, класс отеля, количество номеров и гостей.",
-      restaurant: "Укажите город, дату, время, количество гостей и предпочтения по кухне.",
-      flight: "Укажите маршрут, даты вылета и возврата, класс и количество пассажиров.",
-      taxi: "Укажите точки посадки и высадки, время и тип автомобиля.",
       esim: "Укажите страну назначения, дату активации и пакет данных.",
       insurance: "Укажите страну, сроки страхования, число путешественников и уровень покрытия.",
     },
@@ -181,7 +170,7 @@ const copyByLocale = {
   zh: {
     eyebrow: "Service Desk",
     title: "服务预订",
-    body: "在一个页面提交酒店、餐厅、机票、出租车、e-SIM 和旅行保险请求，并在账户中跟踪状态。",
+    body: "在这里提交 e-SIM 和旅行保险请求，并在账户中跟踪状态。",
     actionBook: "立即预订",
     actionLoginBook: "登录后预订",
     selected: "已选服务",
@@ -220,21 +209,13 @@ const copyByLocale = {
     adminNote: "Admin note",
     statuses: { new: "新建", in_review: "审核中", quoted: "已报价", confirmed: "已确认", cancelled: "已取消", completed: "已完成" },
     intros: {
-      hotel: "请输入目的城市、酒店等级、房间数和住客信息。",
-      restaurant: "请输入城市、日期、时间、人数和用餐偏好。",
-      flight: "请输入航线、出发和返程日期、舱位等级以及乘客人数。",
-      taxi: "请输入上车点、下车点、时间和车辆偏好。",
       esim: "请输入目的地国家、启用日期和流量需求。",
       insurance: "请输入目的地、保障日期、旅客人数和所需保障级别。",
     },
   },
 } as const;
 
-const serviceBadgeLabels: Record<ServiceType, string> = {
-  hotel: "HOTEL",
-  restaurant: "RESTAURANT",
-  flight: "FLIGHT",
-  taxi: "TAXI",
+const serviceBadgeLabels: Record<PublicServiceType, string> = {
   esim: "e-SIM",
   insurance: "INSURANCE",
 };
@@ -310,14 +291,14 @@ function ServicesPageContent() {
   const copy = copyByLocale[locale];
   const insuranceOptions = insuranceOptionsByLocale[locale];
   const services = useMemo(() => getLocalizedServices(locale) as ServiceCard[], [locale]);
-  const [selected, setSelected] = useState<ServiceType>((searchParams.get("service") as ServiceType) || "hotel");
+  const [selected, setSelected] = useState<PublicServiceType>((searchParams.get("service") as PublicServiceType) || "esim");
   const [requests, setRequests] = useState<ServiceBooking[]>([]);
   const [loadingRequests, setLoadingRequests] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    const current = searchParams.get("service") as ServiceType | null;
+    const current = searchParams.get("service") as PublicServiceType | null;
     if (current && services.some((item) => item.id === current)) {
       setSelected(current);
     }
@@ -336,7 +317,7 @@ function ServicesPageContent() {
 
   const currentService = services.find((item) => item.id === selected) || services[0];
 
-  const chooseService = (serviceType: ServiceType) => {
+  const chooseService = (serviceType: PublicServiceType) => {
     setSelected(serviceType);
     setMessage(null);
     if (!user) {
@@ -354,33 +335,7 @@ function ServicesPageContent() {
     }
 
     const formData = new FormData(event.currentTarget);
-    const payloadByService: Record<ServiceType, { destination: string; travelDate: string; endDate?: string; quantity: number; details: Record<string, string | number> }> = {
-      hotel: {
-        destination: String(formData.get("hotelCity") || ""),
-        travelDate: String(formData.get("hotelCheckIn") || ""),
-        endDate: String(formData.get("hotelCheckOut") || ""),
-        quantity: Number(formData.get("hotelRooms") || 1),
-        details: { hotelClass: String(formData.get("hotelClass") || ""), guests: Number(formData.get("hotelGuests") || 1), roomType: String(formData.get("hotelRoomType") || "") },
-      },
-      restaurant: {
-        destination: String(formData.get("restaurantCity") || ""),
-        travelDate: String(formData.get("restaurantDate") || ""),
-        quantity: Number(formData.get("restaurantGuests") || 1),
-        details: { reservationTime: String(formData.get("restaurantTime") || ""), cuisine: String(formData.get("restaurantCuisine") || ""), venueStyle: String(formData.get("restaurantStyle") || "") },
-      },
-      flight: {
-        destination: `${String(formData.get("flightFrom") || "")} -> ${String(formData.get("flightTo") || "")}`,
-        travelDate: String(formData.get("flightDeparture") || ""),
-        endDate: String(formData.get("flightReturn") || ""),
-        quantity: Number(formData.get("flightPassengers") || 1),
-        details: { fromCity: String(formData.get("flightFrom") || ""), toCity: String(formData.get("flightTo") || ""), tripType: String(formData.get("flightTripType") || ""), cabinClass: String(formData.get("flightCabin") || "") },
-      },
-      taxi: {
-        destination: `${String(formData.get("taxiPickup") || "")} -> ${String(formData.get("taxiDropoff") || "")}`,
-        travelDate: String(formData.get("taxiDate") || ""),
-        quantity: Number(formData.get("taxiPassengers") || 1),
-        details: { pickupTime: String(formData.get("taxiTime") || ""), vehicleType: String(formData.get("taxiVehicle") || ""), pickupLocation: String(formData.get("taxiPickup") || ""), dropoffLocation: String(formData.get("taxiDropoff") || "") },
-      },
+    const payloadByService: Record<PublicServiceType, { destination: string; travelDate: string; endDate?: string; quantity: number; details: Record<string, string | number> }> = {
       esim: {
         destination: String(formData.get("esimCountry") || ""),
         travelDate: String(formData.get("esimActivation") || ""),
@@ -492,67 +447,6 @@ function ServicesPageContent() {
                     <input name="contactName" defaultValue={user.fullName} placeholder={copy.contactName} required />
                     <input name="contactEmail" defaultValue={user.email} placeholder={copy.email} type="email" required />
                     <input name="contactPhone" defaultValue={user.phone} placeholder={copy.phone} required />
-
-                    {selected === "hotel" ? (
-                      <>
-                        <input name="hotelCity" placeholder={copy.destination} required />
-                        <input name="hotelCheckIn" type="date" required />
-                        <input name="hotelCheckOut" type="date" required />
-                        <input name="hotelGuests" type="number" min="1" defaultValue="2" placeholder={copy.guests} required />
-                        <input name="hotelRooms" type="number" min="1" defaultValue="1" placeholder={copy.rooms} required />
-                        <select name="hotelClass" defaultValue="4-star">
-                          <option value="4-star">4 star</option>
-                          <option value="5-star">5 star</option>
-                          <option value="boutique">Boutique</option>
-                        </select>
-                        <input className="full" name="hotelRoomType" placeholder={copy.roomType} />
-                      </>
-                    ) : null}
-
-                    {selected === "restaurant" ? (
-                      <>
-                        <input name="restaurantCity" placeholder={copy.city} required />
-                        <input name="restaurantDate" type="date" required />
-                        <input name="restaurantTime" type="time" required />
-                        <input name="restaurantGuests" type="number" min="1" defaultValue="2" placeholder={copy.guests} required />
-                        <input name="restaurantCuisine" placeholder={copy.cuisine} />
-                        <input name="restaurantStyle" placeholder={copy.restaurantStyle} />
-                      </>
-                    ) : null}
-
-                    {selected === "flight" ? (
-                      <>
-                        <input name="flightFrom" placeholder={copy.flightFrom} required />
-                        <input name="flightTo" placeholder={copy.flightTo} required />
-                        <select name="flightTripType" defaultValue="round-trip">
-                          <option value="round-trip">Round-trip</option>
-                          <option value="one-way">One-way</option>
-                        </select>
-                        <select name="flightCabin" defaultValue="economy">
-                          <option value="economy">Economy</option>
-                          <option value="premium-economy">Premium economy</option>
-                          <option value="business">Business</option>
-                        </select>
-                        <input name="flightDeparture" type="date" required />
-                        <input name="flightReturn" type="date" />
-                        <input name="flightPassengers" type="number" min="1" defaultValue="1" placeholder={copy.passengers} required />
-                      </>
-                    ) : null}
-
-                    {selected === "taxi" ? (
-                      <>
-                        <input name="taxiPickup" placeholder={copy.pickup} required />
-                        <input name="taxiDropoff" placeholder={copy.dropoff} required />
-                        <input name="taxiDate" type="date" required />
-                        <input name="taxiTime" type="time" required />
-                        <input name="taxiPassengers" type="number" min="1" defaultValue="2" placeholder={copy.passengers} required />
-                        <select name="taxiVehicle" defaultValue="sedan">
-                          <option value="sedan">Sedan</option>
-                          <option value="van">Van</option>
-                          <option value="vip">VIP</option>
-                        </select>
-                      </>
-                    ) : null}
 
                     {selected === "esim" ? (
                       <>

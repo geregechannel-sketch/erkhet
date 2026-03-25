@@ -29,10 +29,11 @@
 };
 
 const suspiciousCodePoints = new Set<number>([
+  0x00c2,
   0x00c3,
   0x00d0,
   0x00d1,
-  0x00c2,
+  0x00e2,
   0x00e4,
   0x00ef,
   0xfffd,
@@ -46,17 +47,18 @@ function containsSuspiciousText(value: string) {
     }
   }
 
-  return false;
+  return /(?:Ã.|Ð.|Ñ.|Â.|â.)/.test(value);
 }
 
 function scoreReadableText(value: string) {
   let score = 0;
 
-  if (/\p{Script=Cyrillic}/u.test(value)) score += 8;
-  if (/\p{Script=Han}/u.test(value)) score += 8;
+  if (/\p{Script=Cyrillic}/u.test(value)) score += 10;
+  if (/\p{Script=Han}/u.test(value)) score += 10;
   if (/[A-Za-z]{3,}/.test(value)) score += 2;
-  if (/[\u00c3\u00d0\u00d1\u00c2]/u.test(value)) score -= 8;
-  if (value.includes("ï¿½") || value.includes("�")) score -= 12;
+  if (/\b(Монгол|аялал|тур|захиалга|чиглэл|өдөр|цаг)\b/ui.test(value)) score += 6;
+  if (/(?:Ã.|Ð.|Ñ.|Â.|â.)/.test(value)) score -= 14;
+  if (value.includes("ï¿½") || value.includes("�")) score -= 16;
   if (value.includes("Ã‚Â°") || value.includes("Â°")) score -= 4;
   if (/[\u0000-\u001f]/.test(value)) score -= 8;
 
@@ -91,6 +93,14 @@ function decodeUtf8Mist(value: string) {
   return new TextDecoder("utf-8", { fatal: false }).decode(Uint8Array.from(bytes)).trim();
 }
 
+function decodeEscapedUtf8(value: string) {
+  try {
+    return decodeURIComponent(escape(value)).trim();
+  } catch {
+    return value.trim();
+  }
+}
+
 export function repairText(value: string) {
   if (!containsSuspiciousText(value)) {
     return value;
@@ -100,20 +110,25 @@ export function repairText(value: string) {
   let bestScore = scoreReadableText(value);
   let current = value;
 
-  for (let step = 0; step < 5; step += 1) {
-    try {
-      const decoded = decodeUtf8Mist(current);
-      if (!decoded || decoded === current) {
-        break;
+  for (let step = 0; step < 8; step += 1) {
+    const candidates = [decodeUtf8Mist(current), decodeEscapedUtf8(current)].filter(Boolean);
+    let improved = false;
+
+    for (const candidate of candidates) {
+      if (!candidate || candidate === current) {
+        continue;
       }
 
-      const decodedScore = scoreReadableText(decoded);
-      if (decodedScore > bestScore) {
-        best = decoded;
-        bestScore = decodedScore;
+      const candidateScore = scoreReadableText(candidate);
+      if (candidateScore > bestScore) {
+        best = candidate;
+        bestScore = candidateScore;
+        current = candidate;
+        improved = true;
       }
-      current = decoded;
-    } catch {
+    }
+
+    if (!improved) {
       break;
     }
   }

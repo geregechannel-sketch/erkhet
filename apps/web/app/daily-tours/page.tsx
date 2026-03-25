@@ -18,7 +18,7 @@ const copyByLocale = {
     bullets: [
       "Arrival / departure өдөртэй уялдуулж төлөвлөнө",
       "Хот орчмын аялал, соёлын зогсоол, мөргөлийн цэгт тохиромжтой",
-      "Хүсвэл такси, ресторан, зочид буудлын үйлчилгээг хавсаргана",
+      "Өдрийн хөтөлбөрийг ирэх, буцах цагтай уялдуулан тохируулна",
     ],
     emptyTitle: "Одоогоор тусдаа өдрийн аяллын багц цөөн байна.",
     emptyBody: "Та захиалгат өдөр маршрутын хүсэлт илгээж, аяллаа өөрийн хугацаанд тохируулж болно.",
@@ -35,7 +35,7 @@ const copyByLocale = {
     bullets: [
       "Aligned to arrival and departure days",
       "Good for city-adjacent visits, cultural stops, and spiritual visits",
-      "Can be combined with taxi, restaurant, and hotel support",
+      "Can be aligned with your arrival and departure timing",
     ],
     emptyTitle: "There are only a few dedicated day-tour packages right now.",
     emptyBody: "You can still submit a custom day-route request and fit it to your timing.",
@@ -52,7 +52,7 @@ const copyByLocale = {
     bullets: [
       "Привязывается к arrival и departure day",
       "Подходит для поездок вокруг города, культурных остановок и духовных мест",
-      "Можно сочетать с taxi, restaurant и hotel support",
+      "Можно подстроить под время прилета и вылета",
     ],
     emptyTitle: "Сейчас отдельных однодневных пакетов немного.",
     emptyBody: "Вы можете отправить индивидуальный запрос на day route и подстроить его под свои даты.",
@@ -69,7 +69,7 @@ const copyByLocale = {
     bullets: [
       "可与 arrival / departure day 对齐",
       "适合城市周边、文化停靠和精神朝圣点",
-      "可搭配 taxi、restaurant 和 hotel support",
+      "可根据抵达和离开时间灵活安排",
     ],
     emptyTitle: "目前独立的一日游产品还不多。",
     emptyBody: "您仍可提交 custom day route 请求，按自己的时间安排组合。",

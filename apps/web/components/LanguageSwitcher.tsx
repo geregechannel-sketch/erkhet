@@ -3,13 +3,6 @@
 import { localeFlags, localeLabels, supportedLocales, type Locale } from "@/lib/i18n";
 import { useChromeMessages, useLocale } from "@/components/locale/LocaleProvider";
 
-const switcherButtonLabels: Record<Locale, string> = {
-  mn: "Монгол",
-  en: "EN",
-  ru: "RU",
-  zh: "中文",
-};
-
 export function LanguageSwitcher() {
   const { locale, setLocale } = useLocale();
   const messages = useChromeMessages();
@@ -28,7 +21,7 @@ export function LanguageSwitcher() {
             title={localeLabels[code]}
           >
             <span className="languageSwitcherFlag" aria-hidden="true">{localeFlags[code]}</span>
-            <span className="languageSwitcherCode">{switcherButtonLabels[code]}</span>
+            <span className="languageSwitcherCode">{localeLabels[code]}</span>
           </button>
         ))}
       </div>

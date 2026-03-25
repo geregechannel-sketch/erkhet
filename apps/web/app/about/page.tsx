@@ -11,7 +11,7 @@ const copyByLocale = {
   mn: {
     eyebrow: "Бидний тухай",
     title: "Бидний тухай",
-    body: `${siteData.company.nameMn} нь гадаад, дотоод, outbound аяллыг төлөвлөхөөс эхлээд захиалга, төлбөр, дэмжлэгийн урсгал хүртэл нэг системээр удирдах зорилготой ажиллаж байна.`,
+    body: "Манай Эрхэт констракшнь ХХК нь 2018 онд анх үүсгэн байгуулагдсан бөгөөд бид барилгын салбарт 8 жил, хуулийн / өмгөөллийн компани / салбарт тасралтгүй 20 жил үйл ажиллагаа явуулж байгаа хамт олон юм. 2025 онд үйл ажиллагааны чиглэлээ өргөтгөн Эрхэт Солар Тур ХХК-г үүсгэн байгуулж дотоодын болон гадаадын жуулчдад монгол орныхоо онгон дагшин байгаль, ёс заншил, дахин давтагдашгүй нүүдэлчин ахуйг сурталчилан таниулж, тэдний хүсэл сонирхолд нийцсэн үйлчилгээ үзүүлэхийг зорин ажиллаж байна.",
     tours: "Аяллууд үзэх",
     contact: "Холбоо барих",
     snapshotEyebrow: "Компанийн товчхон",
@@ -19,20 +19,13 @@ const copyByLocale = {
     phone: "Утас",
     email: "И-мэйл",
     directionTitle: "Үйл ажиллагааны чиглэл",
-    styleTitle: "Ажиллах формат",
-    valuesTitle: "Үнэт зүйлс",
-    howEyebrow: "Хэрхэн ажилладаг вэ",
-    howTitle: "Нэгдсэн системийн зарчим",
-    cards: [
-      "Public сайт, account, admin бүгд нэг source of truth ашиглана.",
-      "Захиалга, төлбөр, support хүсэлтүүд reference-ээрээ холбогдоно.",
-      "Хэрэглэгчийн үйлдэл бүр account болон admin урсгал дээр харагдана.",
-    ],
+    styleTitle: "Аялалын төрөл",
+    valuesTitle: "Бидний үнэт зүйлс",
   },
   en: {
     eyebrow: "About Us",
     title: "About Us",
-    body: `${siteData.company.nameMn} operates as one connected system for inbound, outbound, and domestic travel, from planning to booking, payment, and support.`,
+    body: "Our team first established Erkhet Construction LLC in 2018. We bring 8 years of experience in the construction sector and 20 years of continuous practice in the legal and advocacy field. In 2025, we expanded our operations and founded Erkhet Solar Tour LLC to introduce Mongolia's untouched nature, traditions, and unique nomadic way of life to both domestic and international travelers while delivering services shaped around their interests.",
     tours: "Browse tours",
     contact: "Contact us",
     snapshotEyebrow: "Company snapshot",
@@ -42,18 +35,11 @@ const copyByLocale = {
     directionTitle: "Business directions",
     styleTitle: "Travel formats",
     valuesTitle: "Core values",
-    howEyebrow: "How we work",
-    howTitle: "One connected platform",
-    cards: [
-      "The public site, customer account, and admin panel share the same source of truth.",
-      "Bookings, payments, and support requests are linked by shared references.",
-      "Every customer action appears in both account and admin workflows.",
-    ],
   },
   ru: {
     eyebrow: "О нас",
     title: "О нас",
-    body: `${siteData.company.nameMn} работает как единая система для въездного, выездного и внутреннего туризма — от планирования до бронирования, оплаты и поддержки.`,
+    body: "Наша команда впервые основала Erkhet Construction LLC в 2018 году. Мы имеем 8 лет опыта в строительной сфере и 20 лет непрерывной работы в области права и адвокатской деятельности. В 2025 году мы расширили направление работы и создали Erkhet Solar Tour LLC, чтобы знакомить местных и иностранных путешественников с первозданной природой Монголии, ее традициями и неповторимым кочевым укладом, предлагая услуги с учетом их интересов.",
     tours: "Смотреть туры",
     contact: "Связаться",
     snapshotEyebrow: "Кратко о компании",
@@ -63,18 +49,11 @@ const copyByLocale = {
     directionTitle: "Направления работы",
     styleTitle: "Форматы путешествий",
     valuesTitle: "Ценности",
-    howEyebrow: "Как мы работаем",
-    howTitle: "Единая платформа",
-    cards: [
-      "Публичный сайт, кабинет клиента и админ-панель используют один источник данных.",
-      "Бронирования, платежи и support-запросы связаны едиными reference.",
-      "Каждое действие клиента видно и в кабинете, и в админ-процессе.",
-    ],
   },
   zh: {
     eyebrow: "关于我们",
     title: "关于我们",
-    body: `${siteData.company.nameMn} 通过一个统一系统管理入境、出境和国内旅游，从规划到预订、支付与支持。`,
+    body: "我们的团队最初于 2018 年成立了 Erkhet Construction LLC，在建筑领域拥有 8 年经验，在法律与辩护服务领域持续工作 20 年。2025 年，我们进一步扩展业务并成立了 Erkhet Solar Tour LLC，面向蒙古国内外游客介绍蒙古原始自然、传统文化和独特的游牧生活方式，并提供符合旅客兴趣与需求的服务。",
     tours: "查看线路",
     contact: "联系我们",
     snapshotEyebrow: "公司概览",
@@ -84,13 +63,6 @@ const copyByLocale = {
     directionTitle: "业务方向",
     styleTitle: "旅行形式",
     valuesTitle: "核心价值",
-    howEyebrow: "我们的工作方式",
-    howTitle: "一体化平台",
-    cards: [
-      "公开网站、用户账户和管理后台使用同一套数据来源。",
-      "预订、支付和支持请求通过统一 reference 关联。",
-      "每个客户动作都会同步到用户端和管理端。",
-    ],
   },
 } as const;
 
@@ -156,22 +128,6 @@ export default async function AboutPage() {
               </ul>
             </div>
           </article>
-        </div>
-      </section>
-
-      <section className="section alt">
-        <div className="container stackLg">
-          <div className="sectionHeading">
-            <div>
-              <p className="eyebrow">{copy.howEyebrow}</p>
-              <h2>{copy.howTitle}</h2>
-            </div>
-          </div>
-          <div className="grid c3">
-            {copy.cards.map((item) => (
-              <article key={item} className="card trustCard"><div className="content">{item}</div></article>
-            ))}
-          </div>
         </div>
       </section>
     </main>

@@ -8,10 +8,6 @@ import type { ServiceBooking } from "@/lib/types";
 
 const serviceOptions = [
   { value: "", label: "Бүх үйлчилгээ" },
-  { value: "hotel", label: "Зочид буудал" },
-  { value: "restaurant", label: "Ресторан" },
-  { value: "flight", label: "Онгоцны суудал" },
-  { value: "taxi", label: "Такси" },
   { value: "esim", label: "e-SIM" },
   { value: "insurance", label: "Даатгал" }
 ];

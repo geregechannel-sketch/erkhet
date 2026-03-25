@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
@@ -11,7 +11,7 @@ const copyByLocale = {
   mn: {
     eyebrow: "Бүртгүүлэх",
     title: "Шинэ бүртгэл үүсгэх",
-    body: "Нэг бүртгэлээр хадгалсан аялал, захиалга, төлбөр, үйлчилгээний хүсэлт, дэмжлэгийн түүхээ удирдана.",
+    body: "Нэг бүртгэлээр хадгалсан аялал, захиалга, төлбөрөө нэг дороос харах боломжтой.",
     fullName: "Овог нэр",
     email: "И-мэйл",
     phone: "Утас",
@@ -27,7 +27,7 @@ const copyByLocale = {
   en: {
     eyebrow: "Register",
     title: "Create an account",
-    body: "Manage saved tours, bookings, payments, service requests, and support history with one account.",
+    body: "Use one account to view your saved tours, bookings, and payments in one place.",
     fullName: "Full name",
     email: "Email",
     phone: "Phone",
@@ -43,7 +43,7 @@ const copyByLocale = {
   ru: {
     eyebrow: "Регистрация",
     title: "Создать учетную запись",
-    body: "Управляйте сохраненными турами, бронированиями, платежами и поддержкой через один аккаунт.",
+    body: "Через один аккаунт можно смотреть сохраненные туры, бронирования и платежи в одном месте.",
     fullName: "Полное имя",
     email: "Email",
     phone: "Телефон",
@@ -59,7 +59,7 @@ const copyByLocale = {
   zh: {
     eyebrow: "注册",
     title: "创建账户",
-    body: "使用一个账户即可管理收藏线路、预订、支付、服务请求和支持记录。",
+    body: "使用一个账户即可在一个地方查看收藏线路、预订和支付信息。",
     fullName: "姓名",
     email: "邮箱",
     phone: "电话",
