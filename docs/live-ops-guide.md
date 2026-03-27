@@ -45,7 +45,7 @@ Key setup хийсний дараа дараагийн бүх upload/deploy ий
 
 ```powershell
 cd C:\Users\Jamsrandorj\Desktop\erkhet-site
-.\deploy-live.cmd
+deploy
 ```
 
 Энэ нь `archive үүсгэх -> scp upload -> ssh deploy` 3 алхмыг бүгдийг нь автомат хийнэ.
@@ -60,7 +60,7 @@ scp "C:\Users\Jamsrandorj\Desktop\erkhet-site-deploy.tar.gz" erkhet-live:/root/
 
 ```powershell
 cd C:\Users\Jamsrandorj\Desktop\erkhet-site
-.\deploy-live.cmd
+deploy
 ```
 ### 2.4 Сервер дээр deploy хийх
 
