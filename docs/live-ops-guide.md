@@ -41,6 +41,17 @@ ssh erkhet-live "echo connected"
 
 Key setup хийсний дараа дараагийн бүх upload/deploy ийм болно:
 
+Хамгийн амар хувилбар:
+
+```powershell
+cd C:\Users\Jamsrandorj\Desktop\erkhet-site
+.\deploy-live.cmd
+```
+
+Энэ нь `archive үүсгэх -> scp upload -> ssh deploy` 3 алхмыг бүгдийг нь автомат хийнэ.
+
+Доод түвшний командууд хэрэгтэй бол:
+
 ```powershell
 scp "C:\Users\Jamsrandorj\Desktop\erkhet-site-deploy.tar.gz" erkhet-live:/root/
 ```
@@ -49,7 +60,7 @@ scp "C:\Users\Jamsrandorj\Desktop\erkhet-site-deploy.tar.gz" erkhet-live:/root/
 
 ```powershell
 cd C:\Users\Jamsrandorj\Desktop\erkhet-site
-powershell -ExecutionPolicy Bypass -File .\scripts\deploy-live.ps1
+.\deploy-live.cmd
 ```
 ### 2.4 Сервер дээр deploy хийх
 
