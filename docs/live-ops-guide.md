@@ -21,18 +21,40 @@
 npm run build
 ```
 
-### 2.2 Code-оо сервер рүү хуулах
+### 2.2 Нэг удаагийн SSH key setup
+
+Энэ алхмыг зөвхөн нэг удаа хийнэ. Нэг удаа хийсний дараа `ssh` ба `scp` password асуухаа болино.
 
 Windows PowerShell дээр:
 
 ```powershell
-scp -r "C:\Users\Jamsrandorj\Documents\Codex\erkhet-site" root@202.131.1.75:/root/
+type $env:USERPROFILE\.ssh\erkhet_live_ed25519.pub | ssh root@202.131.1.75 "umask 077; mkdir -p ~/.ssh; cat >> ~/.ssh/authorized_keys"
 ```
 
-### 2.3 Сервер дээр deploy хийх
+Шалгах:
+
+```powershell
+ssh erkhet-live "echo connected"
+```
+
+### 2.3 Code-оо сервер рүү хуулах
+
+Key setup хийсний дараа дараагийн бүх upload/deploy ийм болно:
+
+```powershell
+scp "C:\Users\Jamsrandorj\Desktop\erkhet-site-deploy.tar.gz" erkhet-live:/root/
+```
+
+эсвэл шууд:
+
+```powershell
+cd C:\Users\Jamsrandorj\Desktop\erkhet-site
+powershell -ExecutionPolicy Bypass -File .\scripts\deploy-live.ps1
+```
+### 2.4 Сервер дээр deploy хийх
 
 ```bash
-ssh root@202.131.1.75
+ssh erkhet-live
 cd /root/erkhet-site
 docker compose -f docker-compose.prod.yml up --build -d
 docker compose -f docker-compose.prod.yml ps
@@ -43,7 +65,7 @@ docker compose -f docker-compose.prod.yml ps
 ### 3.1 Database backup
 
 ```bash
-ssh root@202.131.1.75
+ssh erkhet-live
 mkdir -p /root/backups/$(date +%F)
 docker exec erkhet-site-db-1 pg_dump -U erkhet erkhet > /root/backups/$(date +%F)/erkhet.sql
 ```
@@ -74,7 +96,7 @@ tar -czf /root/backups/erkhet-backup-$(date +%F).tar.gz /root/backups/$(date +%F
 ### 4.2 VPS асаалттай боловч сайт нээгдэхгүй бол
 
 ```bash
-ssh root@202.131.1.75
+ssh erkhet-live
 systemctl restart nginx
 cd /root/erkhet-site
 docker compose -f docker-compose.prod.yml up -d
