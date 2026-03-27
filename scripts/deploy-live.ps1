@@ -1,10 +1,10 @@
-$ErrorActionPreference = "Stop"
-
 param(
   [string]$HostAlias = "erkhet-live",
   [string]$RemoteArchive = "/root/erkhet-site-deploy.tar.gz",
   [string]$RemoteRoot = "/root/erkhet-site"
 )
+
+$ErrorActionPreference = "Stop"
 
 $scriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $repoRoot = Split-Path -Parent $scriptRoot
