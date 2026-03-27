@@ -5,7 +5,6 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
-import { MarketTicker } from "@/components/MarketTicker";
 import { useChromeMessages } from "@/components/locale/LocaleProvider";
 import { siteData } from "@/lib/siteData";
 
@@ -59,14 +58,63 @@ export function Header() {
     <>
       <div className="recoveredUtilityBar">
         <div className="container recoveredUtilityInner">
-          <div className="recoveredTickerWrap">
-            <MarketTicker />
-          </div>
-          <div className="recoveredUtilityControls">
-            <div className="recoveredUtilityMeta recoveredUtilityContact">
-              <a href={`tel:${siteData.company.phone}`}>{siteData.company.phone}</a>
-              <a href={`mailto:${siteData.company.email}`}>{siteData.company.email}</a>
-            </div>
+          <div className="recoveredMenuBar">
+            <p className="recoveredMenuLabel">{messages.utility.menu}</p>
+            <nav className="recoveredMenuNav" aria-label={messages.utility.menu}>
+              {messages.mainNav.map((item) => {
+                const itemCurrent = isNavItemCurrent(pathname, item);
+
+                if (!item.children?.length) {
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={`recoveredMenuLink${itemCurrent ? " current" : ""}`}
+                      aria-current={itemCurrent ? "page" : undefined}
+                    >
+                      {item.label}
+                    </Link>
+                  );
+                }
+
+                const isOpen = openGroupHref === item.href;
+                const submenuId = `topmenu-${item.href.replace(/[^\w-]/g, "-")}`;
+
+                return (
+                  <div
+                    key={item.href}
+                    className={`recoveredMenuGroup${isOpen ? " open" : ""}${itemCurrent ? " current" : ""}`}
+                  >
+                    <button
+                      type="button"
+                      className={`recoveredMenuButton${itemCurrent ? " current" : ""}`}
+                      onClick={() =>
+                        setOpenGroupHref((current) => (current === item.href ? null : item.href))
+                      }
+                      aria-expanded={isOpen}
+                      aria-controls={submenuId}
+                    >
+                      <span>{item.label}</span>
+                      <span className="recoveredMenuChevron" aria-hidden="true">
+                        v
+                      </span>
+                    </button>
+                    <div id={submenuId} className={`recoveredMenuDropdown${isOpen ? " open" : ""}`}>
+                      {item.children.map((child) => (
+                        <Link
+                          key={child.href}
+                          href={child.href}
+                          className={`recoveredMenuDropdownLink${isActive(pathname, child.href) ? " current" : ""}`}
+                        >
+                          <strong>{child.label}</strong>
+                          <span>{child.description}</span>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </nav>
           </div>
         </div>
       </div>
