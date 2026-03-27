@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useLocale } from "@/components/locale/LocaleProvider";
 import { ApiError, authHeaders, browserApiFetch } from "@/lib/api";
-import { formatBookingStatus, formatCurrency, formatDate, formatPaymentStatus } from "@/lib/format";
+import { formatCurrency, formatDate } from "@/lib/format";
 import type { Booking, Payment } from "@/lib/types";
 
 function formatAmount(value: number, currency: string, priceOnRequest: string) {
@@ -14,7 +14,7 @@ function formatAmount(value: number, currency: string, priceOnRequest: string) {
 
 const copyByLocale = {
   mn: {
-    eyebrow: "Booking & Payment",
+    eyebrow: "Захиалга, төлбөр",
     title: "Захиалга / Төлбөр",
     guestBody: "Хийсэн захиалга, төлбөрийн мэдээллээ нэг дороос харахын тулд нэвтэрнэ үү.",
     userBody: "Захиалга, төлбөрийн мэдээллээ энэ хэсгээс хараарай.",
@@ -30,10 +30,10 @@ const copyByLocale = {
     myBookings: "Миний захиалгууд",
     myPayments: "Төлбөрүүд",
     totalBookings: "Нийт захиалга",
-    paymentRecords: "Төлбөрийн бичлэг",
+    paymentRecords: "Төлбөрийн мэдээлэл",
     paid: "Төлөгдсөн",
     pending: "Хүлээгдэж буй",
-    emptyTitle: "Одоогоор захиалгын бичлэг алга.",
+    emptyTitle: "Одоогоор захиалга бүртгэгдээгүй байна.",
     browseTours: "Аяллууд үзэх",
     planTrip: "Аялал төлөвлөх",
     departure: "Гарах өдөр",
@@ -42,7 +42,7 @@ const copyByLocale = {
     open: "Нээх",
     createPayment: "Төлбөр үүсгэх",
     linkedPayments: "Холбогдсон төлбөрүүд",
-    noPayment: "Төлбөрийн бичлэг үүсээгүй байна.",
+    noPayment: "Төлбөрийн мэдээлэл хараахан үүсээгүй байна.",
     markPaid: "Амжилттай болгох",
     markFailed: "Амжилтгүй",
     markCancelled: "Цуцлах",
@@ -51,22 +51,38 @@ const copyByLocale = {
     createFailed: "Төлбөрийн хүсэлт үүсгэхэд алдаа гарлаа.",
     updateFailed: "Төлбөр шинэчлэхэд алдаа гарлаа.",
     priceOnRequest: "Үнэ хүсэлтээр",
+    bookingStatuses: {
+      pending: "Хүлээгдэж буй",
+      confirmed: "Баталгаажсан",
+      cancelled: "Цуцлагдсан",
+      completed: "Дууссан",
+    },
+    paymentStatuses: {
+      unpaid: "Төлөөгүй",
+      pending: "Хүлээгдэж буй",
+      partially_paid: "Хэсэгчлэн төлсөн",
+      paid: "Төлөгдсөн",
+      failed: "Амжилтгүй",
+      cancelled: "Цуцлагдсан",
+      refunded: "Буцаасан",
+      partially_refunded: "Хэсэгчлэн буцаасан",
+    },
   },
   en: {
-    eyebrow: "Booking & Payment",
+    eyebrow: "Booking and payment",
     title: "Booking / Payment",
-    guestBody: "Sign in to review your bookings, payment requests, and confirmation status from one screen.",
-    userBody: "Track bookings, payments, statuses, and payment references from one screen.",
+    guestBody: "Sign in to view your bookings and payment information in one place.",
+    userBody: "Check your bookings and payment information here.",
     login: "Sign in",
     register: "Register",
-    processTitle: "What happens after booking",
-    processItems: ["A booking record is created", "A payment request is linked", "The confirmed state updates in your account"],
-    liveStatus: "Live status",
-    accountLinked: "Booking, payment, and support flows are currently linked to your account.",
+    processTitle: "Payment information",
+    processItems: ["Payment details are shared after your booking is confirmed.", "Your information is updated after the payment is completed."],
+    liveStatus: "Your details",
+    accountLinked: "Your booking and payment information appears in this section.",
     myBookings: "My bookings",
     myPayments: "Payments",
     totalBookings: "Total bookings",
-    paymentRecords: "Payment records",
+    paymentRecords: "Payments",
     paid: "Paid",
     pending: "Pending",
     emptyTitle: "No bookings yet.",
@@ -78,7 +94,7 @@ const copyByLocale = {
     open: "Open",
     createPayment: "Create payment",
     linkedPayments: "Linked payments",
-    noPayment: "No payment record yet.",
+    noPayment: "No payment information yet.",
     markPaid: "Mark successful",
     markFailed: "Mark failed",
     markCancelled: "Cancel",
@@ -87,22 +103,38 @@ const copyByLocale = {
     createFailed: "Failed to create payment request.",
     updateFailed: "Failed to update payment.",
     priceOnRequest: "Price on request",
+    bookingStatuses: {
+      pending: "Pending",
+      confirmed: "Confirmed",
+      cancelled: "Cancelled",
+      completed: "Completed",
+    },
+    paymentStatuses: {
+      unpaid: "Unpaid",
+      pending: "Pending",
+      partially_paid: "Partially paid",
+      paid: "Paid",
+      failed: "Failed",
+      cancelled: "Cancelled",
+      refunded: "Refunded",
+      partially_refunded: "Partially refunded",
+    },
   },
   ru: {
-    eyebrow: "Booking & Payment",
+    eyebrow: "Бронирование и оплата",
     title: "Бронирование / Оплата",
-    guestBody: "Войдите, чтобы видеть бронирования, платежные запросы и статус подтверждения на одном экране.",
-    userBody: "Отслеживайте бронирования, платежи, статусы и payment reference на одном экране.",
+    guestBody: "Войдите, чтобы видеть бронирование и оплату в одном месте.",
+    userBody: "Смотрите информацию о бронировании и оплате в этом разделе.",
     login: "Войти",
     register: "Регистрация",
-    processTitle: "Что происходит после бронирования",
-    processItems: ["Создается booking record", "Связывается платежный запрос", "Подтвержденный статус обновляется в кабинете"],
-    liveStatus: "Live status",
-    accountLinked: "Booking, payment и support процессы уже связаны с вашим аккаунтом.",
+    processTitle: "Информация об оплате",
+    processItems: ["После подтверждения бронирования мы отправим вам информацию об оплате.", "После оплаты информация в вашем кабинете обновится."],
+    liveStatus: "Ваши данные",
+    accountLinked: "В этом разделе отображаются ваши бронирования и платежи.",
     myBookings: "Мои бронирования",
     myPayments: "Платежи",
     totalBookings: "Всего бронирований",
-    paymentRecords: "Платежные записи",
+    paymentRecords: "Платежи",
     paid: "Оплачено",
     pending: "Ожидание",
     emptyTitle: "Пока нет бронирований.",
@@ -114,7 +146,7 @@ const copyByLocale = {
     open: "Открыть",
     createPayment: "Создать платеж",
     linkedPayments: "Связанные платежи",
-    noPayment: "Платежная запись еще не создана.",
+    noPayment: "Информация об оплате пока не создана.",
     markPaid: "Успешно",
     markFailed: "Неуспешно",
     markCancelled: "Отменить",
@@ -123,22 +155,38 @@ const copyByLocale = {
     createFailed: "Не удалось создать платежный запрос.",
     updateFailed: "Не удалось обновить платеж.",
     priceOnRequest: "Цена по запросу",
+    bookingStatuses: {
+      pending: "Ожидается",
+      confirmed: "Подтверждено",
+      cancelled: "Отменено",
+      completed: "Завершено",
+    },
+    paymentStatuses: {
+      unpaid: "Не оплачено",
+      pending: "Ожидается",
+      partially_paid: "Частично оплачено",
+      paid: "Оплачено",
+      failed: "Неуспешно",
+      cancelled: "Отменено",
+      refunded: "Возвращено",
+      partially_refunded: "Частичный возврат",
+    },
   },
   zh: {
-    eyebrow: "Booking & Payment",
+    eyebrow: "预订与支付",
     title: "预订 / 支付",
-    guestBody: "登录后即可在一个页面查看预订、支付请求和确认状态。",
-    userBody: "在一个页面跟踪预订、支付、状态和 payment reference。",
+    guestBody: "登录后即可在一个地方查看预订和支付信息。",
+    userBody: "您可以在这里查看预订和支付信息。",
     login: "登录",
     register: "注册",
-    processTitle: "预订后的流程",
-    processItems: ["创建 booking record", "关联支付请求", "确认状态同步到您的账户"],
-    liveStatus: "Live status",
-    accountLinked: "Booking、payment 和 support 流程已与您的账户关联。",
+    processTitle: "支付信息",
+    processItems: ["预订确认后，我们会向您说明支付信息。", "支付完成后，信息会同步更新。"],
+    liveStatus: "您的信息",
+    accountLinked: "您的预订与支付信息会显示在这里。",
     myBookings: "我的预订",
     myPayments: "支付",
     totalBookings: "预订总数",
-    paymentRecords: "支付记录",
+    paymentRecords: "支付信息",
     paid: "已支付",
     pending: "待处理",
     emptyTitle: "目前还没有预订记录。",
@@ -150,7 +198,7 @@ const copyByLocale = {
     open: "打开",
     createPayment: "创建支付",
     linkedPayments: "关联支付",
-    noPayment: "还没有支付记录。",
+    noPayment: "暂时还没有支付信息。",
     markPaid: "标记成功",
     markFailed: "标记失败",
     markCancelled: "取消",
@@ -159,8 +207,31 @@ const copyByLocale = {
     createFailed: "创建支付请求失败。",
     updateFailed: "更新支付失败。",
     priceOnRequest: "价格面议",
+    bookingStatuses: {
+      pending: "待确认",
+      confirmed: "已确认",
+      cancelled: "已取消",
+      completed: "已完成",
+    },
+    paymentStatuses: {
+      unpaid: "未支付",
+      pending: "处理中",
+      partially_paid: "部分支付",
+      paid: "已支付",
+      failed: "失败",
+      cancelled: "已取消",
+      refunded: "已退款",
+      partially_refunded: "部分退款",
+    },
   },
 } as const;
+
+function formatLocalizedStatus(value: string | undefined, labels: Record<string, string>, fallback: string) {
+  if (!value) {
+    return fallback;
+  }
+  return labels[value] || value;
+}
 
 export default function BookingPaymentPage() {
   const { user, token } = useAuth();
@@ -328,8 +399,8 @@ export default function BookingPaymentPage() {
                     <p className="meta">{booking.bookingReference} • {formatDate(booking.createdAt)}</p>
                   </div>
                   <div className="stackXs alignEnd">
-                    <strong>{formatBookingStatus(booking.bookingStatus)}</strong>
-                    <span className="meta">{formatPaymentStatus(booking.paymentStatus)}</span>
+                    <strong>{formatLocalizedStatus(booking.bookingStatus, copy.bookingStatuses, copy.pending)}</strong>
+                    <span className="meta">{formatLocalizedStatus(booking.paymentStatus, copy.paymentStatuses, copy.pending)}</span>
                   </div>
                 </div>
 
@@ -356,7 +427,7 @@ export default function BookingPaymentPage() {
                       <div className="content stackSm">
                         <div className="rowActions spread wrapActions">
                           <strong>{payment.paymentReference}</strong>
-                          <span className={`statusPill status-${payment.status}`}>{formatPaymentStatus(payment.status)}</span>
+                          <span className={`statusPill status-${payment.status}`}>{formatLocalizedStatus(payment.status, copy.paymentStatuses, copy.pending)}</span>
                         </div>
                         <p className="meta">{payment.method} • {formatAmount(payment.amount, payment.currency, copy.priceOnRequest)}</p>
                         {payment.status === "pending" ? (

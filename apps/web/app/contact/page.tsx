@@ -38,7 +38,7 @@ const copyByLocale = {
     flowTitle: "Ways to reach us",
     flowItems: ["Call or email us directly.", "Leave a message on Facebook.", "Scan the WeChat QR to connect instantly."],
     formTitle: "Send a request",
-    typeSupport: "Support request",
+    typeSupport: "Support",
     typeFeedback: "Feedback",
     typeComplaint: "Complaint",
     subject: "Subject",
@@ -61,9 +61,9 @@ const copyByLocale = {
     flowTitle: "Как с нами связаться",
     flowItems: ["Позвоните или напишите на email.", "Оставьте сообщение на Facebook.", "Подключитесь через QR-код WeChat."],
     formTitle: "Отправить запрос",
-    typeSupport: "Support request",
-    typeFeedback: "Feedback",
-    typeComplaint: "Complaint",
+    typeSupport: "Поддержка",
+    typeFeedback: "Отзыв",
+    typeComplaint: "Жалоба",
     subject: "Тема",
     name: "Имя",
     email: "Email",
@@ -84,9 +84,9 @@ const copyByLocale = {
     flowTitle: "联系方式",
     flowItems: ["可直接电话或邮件联系。", "可在 Facebook 留言。", "可扫描 WeChat 二维码快速沟通。"],
     formTitle: "提交请求",
-    typeSupport: "Support request",
-    typeFeedback: "Feedback",
-    typeComplaint: "Complaint",
+    typeSupport: "咨询支持",
+    typeFeedback: "意见反馈",
+    typeComplaint: "投诉",
     subject: "主题",
     name: "姓名",
     email: "邮箱",
@@ -97,7 +97,7 @@ const copyByLocale = {
     success: "请求已提交，我们会尽快与您联系。",
     error: "发送请求失败。",
     contactTitle: "官方联系方式",
-    qrTitle: "WeChat 二维码",
+    qrTitle: "微信二维码",
   },
 } as const;
 
@@ -201,7 +201,9 @@ export default function ContactPage() {
                 <div className="qrGrid">
                   <figure>
                     <img src={siteData.contacts.wechatQr} alt="WeChat QR" />
-                    <figcaption>{locale === "mn" ? "Вичат" : "WeChat"}</figcaption>
+                    <figcaption>
+                      {locale === "mn" ? "Вичат" : locale === "ru" ? "Вичат" : locale === "zh" ? "微信" : "WeChat"}
+                    </figcaption>
                   </figure>
                 </div>
               </div>

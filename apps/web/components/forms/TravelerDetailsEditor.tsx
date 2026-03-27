@@ -2,11 +2,52 @@
 
 import type { TravelerDetail } from "@/lib/types";
 
+type TravelerLabels = {
+  fullName: string;
+  age: string;
+  gender: string;
+  hobby: string;
+  diet: string;
+  allergy: string;
+};
+
+type TravelerPlaceholders = {
+  fullName: string;
+  age: string;
+  gender: string;
+  hobby: string;
+  diet: string;
+  allergy: string;
+};
+
 type Props = {
   value: TravelerDetail[];
   onChange: (items: TravelerDetail[]) => void;
   title?: string;
   description?: string;
+  addLabel?: string;
+  emptyState?: string;
+  removeLabel?: string;
+  labels?: TravelerLabels;
+  placeholders?: TravelerPlaceholders;
+};
+
+const defaultLabels: TravelerLabels = {
+  fullName: "Нэр",
+  age: "Нас",
+  gender: "Хүйс",
+  hobby: "Сонирхол",
+  diet: "Хоолны онцлог",
+  allergy: "Харшил",
+};
+
+const defaultPlaceholders: TravelerPlaceholders = {
+  fullName: "Нэр",
+  age: "Нас",
+  gender: "Эрэгтэй / Эмэгтэй",
+  hobby: "Жишээ: Гэрэл зураг",
+  diet: "Жишээ: Цагаан хоолтон",
+  allergy: "Харшлын мэдээлэл",
 };
 
 function blankTraveler(): TravelerDetail {
@@ -16,23 +57,32 @@ function blankTraveler(): TravelerDetail {
     gender: "",
     hobby: "",
     diet: "",
-    allergy: ""
+    allergy: "",
   };
 }
 
 export function TravelerDetailsEditor({
   value,
   onChange,
-  title = "Аялагчдын нэмэлт мэдээлэл",
-  description = "Энэ хүснэгт нь заавал бөглөх талбар биш. Аялал зохион байгуулалт, хоолны сонголт, аюулгүй байдлыг хангах зорилгоор л ашиглагдана."
+  title = "Аялагчийн мэдээлэл",
+  description = "Энэ хэсгийг заавал бөглөх албагүй. Аяллыг илүү зөв зохион байгуулахад хэрэгтэй мэдээллээ оруулж болно.",
+  addLabel = "Аялагч нэмэх",
+  emptyState = "Хамт явах хүмүүсийн нэр, нас, хоолны онцлог, харшлын мэдээллийг энд оруулж болно.",
+  removeLabel = "Хасах",
+  labels = defaultLabels,
+  placeholders = defaultPlaceholders,
 }: Props) {
   const items = value.length > 0 ? value : [];
 
-  const updateTraveler = <K extends keyof TravelerDetail>(index: number, field: K, nextValue: TravelerDetail[K]) => {
+  const updateTraveler = <K extends keyof TravelerDetail>(
+    index: number,
+    field: K,
+    nextValue: TravelerDetail[K],
+  ) => {
     const next = [...items];
     next[index] = {
       ...next[index],
-      [field]: nextValue
+      [field]: nextValue,
     };
     onChange(next);
   };
@@ -53,25 +103,23 @@ export function TravelerDetailsEditor({
           <p className="meta">{description}</p>
         </div>
         <button className="btn secondary" type="button" onClick={addTraveler}>
-          Аялагч нэмэх
+          {addLabel}
         </button>
       </div>
 
       {items.length === 0 ? (
-        <div className="travelerEmptyState">
-          Хүсвэл хамт явах хүмүүсийн нэр, нас, хоолны онцлог, харшлын мэдээллийг энд оруулж болно.
-        </div>
+        <div className="travelerEmptyState">{emptyState}</div>
       ) : (
         <div className="travelerTableWrap">
           <table className="travelerTable">
             <thead>
               <tr>
-                <th>Нэр</th>
-                <th>Нас</th>
-                <th>Хүйс</th>
-                <th>Хобби</th>
-                <th>Хоолны онцлог</th>
-                <th>Харшил</th>
+                <th>{labels.fullName}</th>
+                <th>{labels.age}</th>
+                <th>{labels.gender}</th>
+                <th>{labels.hobby}</th>
+                <th>{labels.diet}</th>
+                <th>{labels.allergy}</th>
                 <th />
               </tr>
             </thead>
@@ -82,7 +130,7 @@ export function TravelerDetailsEditor({
                     <input
                       value={traveler.fullName}
                       onChange={(event) => updateTraveler(index, "fullName", event.target.value)}
-                      placeholder="Нэр"
+                      placeholder={placeholders.fullName}
                     />
                   </td>
                   <td>
@@ -90,41 +138,43 @@ export function TravelerDetailsEditor({
                       type="number"
                       min="0"
                       value={traveler.age ?? ""}
-                      onChange={(event) => updateTraveler(index, "age", event.target.value ? Number(event.target.value) : null)}
-                      placeholder="Нас"
+                      onChange={(event) =>
+                        updateTraveler(index, "age", event.target.value ? Number(event.target.value) : null)
+                      }
+                      placeholder={placeholders.age}
                     />
                   </td>
                   <td>
                     <input
                       value={traveler.gender}
                       onChange={(event) => updateTraveler(index, "gender", event.target.value)}
-                      placeholder="Эрэгтэй / Эмэгтэй"
+                      placeholder={placeholders.gender}
                     />
                   </td>
                   <td>
                     <input
                       value={traveler.hobby}
                       onChange={(event) => updateTraveler(index, "hobby", event.target.value)}
-                      placeholder="Жишээ: Фото"
+                      placeholder={placeholders.hobby}
                     />
                   </td>
                   <td>
                     <input
                       value={traveler.diet}
                       onChange={(event) => updateTraveler(index, "diet", event.target.value)}
-                      placeholder="Веган, халал..."
+                      placeholder={placeholders.diet}
                     />
                   </td>
                   <td>
                     <input
                       value={traveler.allergy}
                       onChange={(event) => updateTraveler(index, "allergy", event.target.value)}
-                      placeholder="Харшлын мэдээлэл"
+                      placeholder={placeholders.allergy}
                     />
                   </td>
                   <td>
                     <button className="travelerRemoveButton" type="button" onClick={() => removeTraveler(index)}>
-                      Хасах
+                      {removeLabel}
                     </button>
                   </td>
                 </tr>

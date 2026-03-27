@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useLocale } from "@/components/locale/LocaleProvider";
 import { ApiError, browserApiFetch } from "@/lib/api";
+import { repairDeep } from "@/lib/text";
 import type { PasswordResetResponse } from "@/lib/types";
 
 type DemoAccount = {
@@ -16,7 +17,7 @@ type DemoAccount = {
   redirect: string;
 };
 
-const demoAccountsByLocale = {
+const rawDemoAccountsByLocale = {
   mn: [
     {
       identifier: "user2",
@@ -83,7 +84,9 @@ const demoAccountsByLocale = {
   ],
 } as const;
 
-const copyByLocale = {
+const demoAccountsByLocale = repairDeep(rawDemoAccountsByLocale) as typeof rawDemoAccountsByLocale;
+
+const rawCopyByLocale = {
   mn: {
     eyebrow: "Нэвтрэх",
     title: "Хэрэглэгчийн эрхээр нэвтрэх",
@@ -189,6 +192,8 @@ const copyByLocale = {
     register: "注册",
   },
 } as const;
+
+const copyByLocale = repairDeep(rawCopyByLocale) as typeof rawCopyByLocale;
 
 export default function LoginPage() {
   const router = useRouter();

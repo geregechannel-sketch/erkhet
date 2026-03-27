@@ -2,15 +2,126 @@ import { notFound } from "next/navigation";
 import { BookingPanel } from "@/components/tours/BookingPanel";
 import { SaveTourButton } from "@/components/tours/SaveTourButton";
 import { safeServerApiFetch } from "@/lib/api";
-import { describeDuration, formatBusinessLine, formatCurrency, formatOperationType } from "@/lib/format";
+import { formatCurrency } from "@/lib/format";
+import { defaultLocale, type Locale } from "@/lib/i18n";
+import { getRequestLocale } from "@/lib/request-locale";
 import { getPublicBusinessLine } from "@/lib/tour-audience";
 import { displayItineraryValue, getStructuredItinerary } from "@/lib/tour-itinerary";
 import type { Tour } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
+const copyByLocale = {
+  mn: {
+    route: "Чиглэл",
+    category: "Ангилал",
+    format: "Төрөл",
+    seats: "Сул суудал",
+    itinerary: "Хөтөлбөр",
+    day: "Өдөр",
+    time: "Цаг",
+    duration: "Ноогдох хугацаа",
+    program: "Хөтөлбөр",
+    included: "Үүнд багтсан",
+    excluded: "Үүнд багтаагүй",
+    priceOnRequest: "Үнэ хүсэлтээр",
+    unknown: "Тодорхойгүй",
+    businessLine: {
+      inbound: "Монголд аялуулах",
+      outbound: "Гадаад аялал",
+      domestic: "Дотоод аялал",
+    },
+    operationType: {
+      scheduled: "Хуваарьт",
+      custom: "Захиалгат",
+    },
+    dayLabel: (days: number, nights: number) => (nights > 0 ? `${days} өдөр / ${nights} шөнө` : `${days} өдөр`),
+  },
+  en: {
+    route: "Route",
+    category: "Category",
+    format: "Format",
+    seats: "Available seats",
+    itinerary: "Itinerary",
+    day: "Day",
+    time: "Time",
+    duration: "Duration",
+    program: "Program",
+    included: "Included",
+    excluded: "Not included",
+    priceOnRequest: "Price on request",
+    unknown: "Not specified",
+    businessLine: {
+      inbound: "Mongolia tours for foreign visitors",
+      outbound: "International tours",
+      domestic: "Domestic tours",
+    },
+    operationType: {
+      scheduled: "Scheduled",
+      custom: "Custom",
+    },
+    dayLabel: (days: number, nights: number) => (nights > 0 ? `${days} days / ${nights} nights` : `${days} days`),
+  },
+  ru: {
+    route: "Маршрут",
+    category: "Категория",
+    format: "Формат",
+    seats: "Свободные места",
+    itinerary: "Программа",
+    day: "День",
+    time: "Время",
+    duration: "Продолжительность",
+    program: "Описание",
+    included: "Включено",
+    excluded: "Не включено",
+    priceOnRequest: "Цена по запросу",
+    unknown: "Не указано",
+    businessLine: {
+      inbound: "Туры по Монголии для иностранных гостей",
+      outbound: "Зарубежные туры",
+      domestic: "Внутренние туры",
+    },
+    operationType: {
+      scheduled: "По расписанию",
+      custom: "Индивидуально",
+    },
+    dayLabel: (days: number, nights: number) => (nights > 0 ? `${days} дней / ${nights} ночей` : `${days} дней`),
+  },
+  zh: {
+    route: "线路",
+    category: "分类",
+    format: "形式",
+    seats: "剩余名额",
+    itinerary: "行程安排",
+    day: "天数",
+    time: "时间",
+    duration: "时长",
+    program: "安排",
+    included: "包含内容",
+    excluded: "不包含内容",
+    priceOnRequest: "价格面议",
+    unknown: "未说明",
+    businessLine: {
+      inbound: "面向外国游客的蒙古旅游",
+      outbound: "出境游",
+      domestic: "蒙古国内游",
+    },
+    operationType: {
+      scheduled: "固定团",
+      custom: "定制团",
+    },
+    dayLabel: (days: number, nights: number) => (nights > 0 ? `${days}天 / ${nights}晚` : `${days}天`),
+  },
+} as const;
+
+function resolveCopy(locale: string) {
+  return copyByLocale[(locale as Locale) in copyByLocale ? (locale as Locale) : defaultLocale];
+}
+
 export default async function TourDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  const locale = await getRequestLocale();
+  const copy = resolveCopy(locale);
   const tour = await safeServerApiFetch<Tour | null>(`/tours/${id}`, null);
 
   if (!tour) {
@@ -21,14 +132,14 @@ export default async function TourDetailPage({ params }: { params: Promise<{ id:
   const publicBusinessLine = getPublicBusinessLine(tour);
   const price = tour.priceAmount
     ? formatCurrency(tour.priceAmount, tour.currency || "MNT")
-    : tour.pricingNote || "Үнэ хүсэлтээр";
+    : tour.pricingNote || copy.priceOnRequest;
 
   return (
     <main>
       <section className="pageHero">
         <div className="container detailHero">
           <div className="stackMd">
-            <span className="badge">{describeDuration(tour.durationDays, tour.durationNights)}</span>
+            <span className="badge">{copy.dayLabel(tour.durationDays, tour.durationNights)}</span>
             <h1>{tour.title}</h1>
             <p>{tour.description}</p>
             <div className="heroActions">
@@ -46,31 +157,33 @@ export default async function TourDetailPage({ params }: { params: Promise<{ id:
             <div className="content stackLg">
               <div className="detailMetaGrid">
                 <div>
-                  <strong>Чиглэл</strong>
-                  <p>{tour.route}</p>
+                  <strong>{copy.route}</strong>
+                  <p>{tour.route || copy.unknown}</p>
                 </div>
                 <div>
-                  <strong>Ангилал</strong>
-                  <p>{formatBusinessLine(publicBusinessLine)}</p>
+                  <strong>{copy.category}</strong>
+                  <p>{copy.businessLine[publicBusinessLine]}</p>
                 </div>
                 <div>
-                  <strong>Формат</strong>
-                  <p>{formatOperationType(tour.operationType)}</p>
+                  <strong>{copy.format}</strong>
+                  <p>{copy.operationType[tour.operationType]}</p>
                 </div>
                 <div>
-                  <strong>Сул суудал</strong>
-                  <p>{tour.availabilityCount} / {tour.capacity}</p>
+                  <strong>{copy.seats}</strong>
+                  <p>
+                    {tour.availabilityCount} / {tour.capacity}
+                  </p>
                 </div>
               </div>
 
               <div className="stackMd">
-                <h3>Хөтөлбөр</h3>
+                <h3>{copy.itinerary}</h3>
                 <div className="itineraryDays">
                   {itineraryDays.map((day) => (
                     <article key={`${day.day}-${day.title}`} className="card itineraryDayCard slimCard">
                       <div className="content stackMd">
                         <div className="itineraryDayHeader">
-                          <p className="itineraryDayEyebrow">Өдөр</p>
+                          <p className="itineraryDayEyebrow">{copy.day}</p>
                           <div className="itineraryDayHeading">
                             <span className="itineraryDayLabel">{displayItineraryValue(day.day)}</span>
                             <h4 className="itineraryDayTitle">{displayItineraryValue(day.title)}</h4>
@@ -81,9 +194,9 @@ export default async function TourDetailPage({ params }: { params: Promise<{ id:
                           <table className="itineraryTable">
                             <thead>
                               <tr>
-                                <th scope="col">Цаг</th>
-                                <th scope="col">Ноогдох хугацаа</th>
-                                <th scope="col">Хөтөлбөр</th>
+                                <th scope="col">{copy.time}</th>
+                                <th scope="col">{copy.duration}</th>
+                                <th scope="col">{copy.program}</th>
                               </tr>
                             </thead>
                             <tbody>
@@ -102,16 +215,16 @@ export default async function TourDetailPage({ params }: { params: Promise<{ id:
                               <article key={`${day.day}-mobile-${item.time}-${itemIndex}`} className="itineraryMobileCard">
                                 <div className="itineraryMobileMeta">
                                   <div className="itineraryMetaBlock">
-                                    <span>Цаг</span>
+                                    <span>{copy.time}</span>
                                     <strong>{displayItineraryValue(item.time)}</strong>
                                   </div>
                                   <div className="itineraryMetaBlock">
-                                    <span>Ноогдох хугацаа</span>
+                                    <span>{copy.duration}</span>
                                     <strong>{displayItineraryValue(item.duration)}</strong>
                                   </div>
                                 </div>
                                 <div className="itineraryMetaBlock itineraryProgramBlock">
-                                  <span>Хөтөлбөр</span>
+                                  <span>{copy.program}</span>
                                   <p>{displayItineraryValue(item.program)}</p>
                                 </div>
                               </article>
@@ -127,17 +240,21 @@ export default async function TourDetailPage({ params }: { params: Promise<{ id:
               <div className="grid c2">
                 <article className="card slimCard">
                   <div className="content stackSm">
-                    <h4>Үүнд багтсан</h4>
+                    <h4>{copy.included}</h4>
                     <ul className="list compact">
-                      {tour.inclusions.map((item) => <li key={item}>{item}</li>)}
+                      {tour.inclusions.map((item) => (
+                        <li key={item}>{item}</li>
+                      ))}
                     </ul>
                   </div>
                 </article>
                 <article className="card slimCard">
                   <div className="content stackSm">
-                    <h4>Үүнд багтаагүй</h4>
+                    <h4>{copy.excluded}</h4>
                     <ul className="list compact">
-                      {tour.exclusions.map((item) => <li key={item}>{item}</li>)}
+                      {tour.exclusions.map((item) => (
+                        <li key={item}>{item}</li>
+                      ))}
                     </ul>
                   </div>
                 </article>

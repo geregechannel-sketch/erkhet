@@ -7,7 +7,7 @@ const copyByLocale = {
   mn: {
     eyebrow: "Тусламжийн төв",
     title: "Тусламж, FAQ, бодлогууд",
-    body: "Захиалга, төлбөр, буцаалт, дэмжлэгийн үндсэн мэдээллээ нэг дороос хараарай.",
+    body: "Аялалтай холбоотой түгээмэл асуулт, төлбөрийн мэдээлэл, үндсэн бодлогуудыг эндээс хараарай.",
     askQuestion: "Асуулт илгээх",
     openGuide: "Гарын авлага руу орох",
     paymentEyebrow: "Төлбөр ба бодлого",
@@ -21,7 +21,7 @@ const copyByLocale = {
   en: {
     eyebrow: "Help Center",
     title: "Help, FAQ, and policies",
-    body: "See booking, payment, refund, and support guidance in one place.",
+    body: "See common travel questions, payment guidance, and key policies in one place.",
     askQuestion: "Send a question",
     openGuide: "Open travel guide",
     paymentEyebrow: "Payment & policy",
@@ -35,7 +35,7 @@ const copyByLocale = {
   ru: {
     eyebrow: "Центр помощи",
     title: "Помощь, FAQ и политики",
-    body: "Смотрите информацию по бронированию, оплате, возврату и поддержке в одном месте.",
+    body: "Здесь собраны частые вопросы, информация об оплате и основные правила поездки.",
     askQuestion: "Отправить вопрос",
     openGuide: "Открыть путеводитель",
     paymentEyebrow: "Оплата и политика",
@@ -49,7 +49,7 @@ const copyByLocale = {
   zh: {
     eyebrow: "帮助中心",
     title: "帮助、FAQ 与政策",
-    body: "在一个页面查看预订、支付、退款和支持说明。",
+    body: "在一个页面查看常见问题、支付说明和主要政策。",
     askQuestion: "提交问题",
     openGuide: "打开旅行指南",
     paymentEyebrow: "支付与政策",

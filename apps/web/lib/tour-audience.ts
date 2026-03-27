@@ -28,5 +28,5 @@ export function isForeignOnlyTour(tour: TourAudienceTarget) {
 }
 
 export function getPublicBusinessLine(tour: TourAudienceTarget): Tour["businessLine"] {
-  return isForeignOnlyTour(tour) ? "outbound" : tour.businessLine;
+  return isForeignOnlyTour(tour) ? "inbound" : tour.businessLine;
 }

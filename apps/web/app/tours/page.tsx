@@ -1,5 +1,7 @@
+import { OutboundDestinationCard } from "@/components/tours/OutboundDestinationCard";
 import { TourCard } from "@/components/tours/TourCard";
 import { safeServerApiFetch } from "@/lib/api";
+import { outboundDestinations } from "@/lib/outbound-destinations";
 import { getRequestLocale } from "@/lib/request-locale";
 import { getPublicBusinessLine, isForeignOnlyTour } from "@/lib/tour-audience";
 import type { Tour } from "@/lib/types";
@@ -9,7 +11,8 @@ export const dynamic = "force-dynamic";
 function buildQuery(searchParams: Record<string, string | string[] | undefined>) {
   const params = new URLSearchParams();
   const search = typeof searchParams.search === "string" ? searchParams.search : "";
-  const operationType = typeof searchParams.operationType === "string" ? searchParams.operationType : "";
+  const operationType =
+    typeof searchParams.operationType === "string" ? searchParams.operationType : "";
   const tourKind = typeof searchParams.tourKind === "string" ? searchParams.tourKind : "";
 
   if (search) params.set("search", search);
@@ -22,11 +25,11 @@ function buildQuery(searchParams: Record<string, string | string[] | undefined>)
 
 const copyByLocale = {
   mn: {
-    title: "Аялалууд",
-    body: "Та аялалын маршрут болон захиалгат аялалын мэдээллийг эндээс үзээрэй.",
+    title: "Аяллууд",
+    body: "Та аяллын маршрут болон захиалгат аяллын мэдээллийг эндээс үзээрэй.",
     search: "Аялал хайх",
     allBusiness: "Бүх чиглэл",
-    domestic: "Дотоод",
+    domestic: "Дотоод аялал",
     inbound: "Монголд аялуулах",
     outbound: "Гадаад аялал",
     allFormat: "Бүх формат",
@@ -37,15 +40,18 @@ const copyByLocale = {
     dayTour: "Өдрийн аялал",
     filter: "Шүүх",
     empty: "Таны хайлттай тохирох аялал одоогоор олдсонгүй.",
+    outboundTitle: "Онцлох гадаад аяллын чиглэлүүд",
+    outboundBody:
+      "Москва, Бээжин, Дубай чиглэлийн аяллын мэдээллийг нэг стандарт хэлбэрээр эндээс сонгоорой.",
   },
   en: {
     title: "Tours",
     body: "See route details and custom tour information here.",
     search: "Search tours",
     allBusiness: "All categories",
-    domestic: "Domestic",
-    inbound: "Inbound",
-    outbound: "International",
+    domestic: "Domestic tours",
+    inbound: "Tours in Mongolia",
+    outbound: "International trips",
     allFormat: "All formats",
     scheduled: "Scheduled",
     custom: "Custom",
@@ -54,15 +60,17 @@ const copyByLocale = {
     dayTour: "Day tour",
     filter: "Filter",
     empty: "No tours match your search yet.",
+    outboundTitle: "Featured international destinations",
+    outboundBody: "Explore Moscow, Beijing, and Dubai in the same clear card format.",
   },
   ru: {
     title: "Туры",
     body: "Здесь можно посмотреть маршруты и информацию по индивидуальным турам.",
     search: "Поиск туров",
     allBusiness: "Все направления",
-    domestic: "Внутренние",
-    inbound: "Въездные",
-    outbound: "Международные",
+    domestic: "Внутренние туры",
+    inbound: "Туры по Монголии",
+    outbound: "Зарубежные поездки",
     allFormat: "Все форматы",
     scheduled: "По расписанию",
     custom: "Индивидуальные",
@@ -70,16 +78,18 @@ const copyByLocale = {
     multiDay: "Многодневные",
     dayTour: "Однодневные",
     filter: "Фильтр",
-    empty: "Туры по вашему запросу пока не найдены.",
+    empty: "По вашему запросу туры пока не найдены.",
+    outboundTitle: "Популярные зарубежные направления",
+    outboundBody: "Москва, Пекин и Дубай показаны в едином понятном формате.",
   },
   zh: {
     title: "旅游线路",
     body: "在这里查看线路安排和定制旅行信息。",
     search: "搜索线路",
     allBusiness: "全部方向",
-    domestic: "国内",
-    inbound: "入境",
-    outbound: "国际",
+    domestic: "国内游",
+    inbound: "蒙古境内游",
+    outbound: "出境游",
     allFormat: "全部形式",
     scheduled: "计划团",
     custom: "定制团",
@@ -88,6 +98,8 @@ const copyByLocale = {
     dayTour: "一日游",
     filter: "筛选",
     empty: "暂时没有符合条件的线路。",
+    outboundTitle: "热门出境方向",
+    outboundBody: "莫斯科、北京和迪拜以统一清晰的卡片形式展示。",
   },
 } as const;
 
@@ -102,6 +114,8 @@ export default async function ToursPage({
   const tours = await safeServerApiFetch<Tour[]>(buildQuery(params), []);
   const selectedBusinessLine =
     typeof params.businessLine === "string" ? params.businessLine : "";
+  const selectedSearch = typeof params.search === "string" ? params.search.trim().toLowerCase() : "";
+  const showOutboundHighlights = selectedBusinessLine === "outbound";
 
   const visibleTours = tours.filter((tour) => {
     const publicBusinessLine = getPublicBusinessLine(tour);
@@ -112,6 +126,14 @@ export default async function ToursPage({
     if (selectedBusinessLine === "inbound") return publicBusinessLine === "inbound";
     return !isForeignOnlyTour(tour);
   });
+
+  const highlightedOutboundDestinations = outboundDestinations.map((destination) => ({
+    ...destination,
+    current:
+      selectedSearch.length > 0 &&
+      [destination.title.mn, destination.title.en, destination.title.ru, destination.title.zh]
+        .some((value) => value.toLowerCase().includes(selectedSearch)),
+  }));
 
   return (
     <main>
@@ -159,7 +181,26 @@ export default async function ToursPage({
 
       <section className="section">
         <div className="container stackLg">
-          {visibleTours.length === 0 ? (
+          {showOutboundHighlights ? (
+            <article className="panel stackMd outboundHighlightsPanel">
+              <div className="sectionHeading stackXs">
+                <h2>{copy.outboundTitle}</h2>
+                <p>{copy.outboundBody}</p>
+              </div>
+              <div className="grid c3">
+                {highlightedOutboundDestinations.map((destination) => (
+                  <OutboundDestinationCard
+                    key={destination.slug}
+                    destination={destination}
+                    locale={locale}
+                    current={destination.current}
+                  />
+                ))}
+              </div>
+            </article>
+          ) : null}
+
+          {visibleTours.length === 0 && !showOutboundHighlights ? (
             <article className="panel emptyState">{copy.empty}</article>
           ) : (
             <div className="grid c3">

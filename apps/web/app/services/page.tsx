@@ -23,7 +23,7 @@ type ServiceCard = {
 
 const copyByLocale = {
   mn: {
-    eyebrow: "Service Desk",
+    eyebrow: "Үйлчилгээ",
     title: "Үйлчилгээний захиалга",
     body: "e-SIM болон аяллын даатгалын хүсэлтээ эндээс илгээж, төлөвөө өөрийн бүртгэлээс хянаарай.",
     actionBook: "Захиалах",
@@ -56,12 +56,12 @@ const copyByLocale = {
     sent: "хүсэлт амжилттай илгээгдлээ.",
     failed: "Хүсэлт илгээхэд алдаа гарлаа.",
     myRequests: "Миний үйлчилгээний хүсэлтүүд",
-    myRequestsEyebrow: "My Requests",
+    myRequestsEyebrow: "Миний хүсэлтүүд",
     loginToSee: "Нэвтэрсний дараа таны илгээсэн бүх service request энд харагдана.",
     loading: "Ачааллаж байна...",
     empty: "Одоогоор үйлчилгээний хүсэлт алга.",
     qtyLine: "Тоон мэдээлэл",
-    adminNote: "Admin note",
+    adminNote: "Тэмдэглэл",
     statuses: {
       new: "Шинэ",
       in_review: "Хянагдаж байна",
@@ -76,7 +76,7 @@ const copyByLocale = {
     },
   },
   en: {
-    eyebrow: "Service Desk",
+    eyebrow: "Services",
     title: "Service Booking",
     body: "Submit e-SIM and travel insurance requests here and track their status from your account.",
     actionBook: "Book now",
@@ -109,12 +109,12 @@ const copyByLocale = {
     sent: "request sent successfully.",
     failed: "Failed to submit request.",
     myRequests: "My service requests",
-    myRequestsEyebrow: "My Requests",
+    myRequestsEyebrow: "My requests",
     loginToSee: "After sign-in, all your submitted service requests will appear here.",
     loading: "Loading...",
     empty: "No service requests yet.",
     qtyLine: "Quantity",
-    adminNote: "Admin note",
+    adminNote: "Note",
     statuses: { new: "New", in_review: "In review", quoted: "Quoted", confirmed: "Confirmed", cancelled: "Cancelled", completed: "Completed" },
     intros: {
       esim: "Select destination country, activation date, and preferred data plan.",
@@ -122,7 +122,7 @@ const copyByLocale = {
     },
   },
   ru: {
-    eyebrow: "Service Desk",
+    eyebrow: "Услуги",
     title: "Заказ услуг",
     body: "Отправляйте запросы на e-SIM и туристическую страховку и отслеживайте статус в кабинете.",
     actionBook: "Забронировать",
@@ -155,12 +155,12 @@ const copyByLocale = {
     sent: "запрос успешно отправлен.",
     failed: "Не удалось отправить запрос.",
     myRequests: "Мои сервисные запросы",
-    myRequestsEyebrow: "My Requests",
+    myRequestsEyebrow: "Мои запросы",
     loginToSee: "После входа здесь будут отображаться все ваши сервисные запросы.",
     loading: "Загрузка...",
     empty: "Пока нет сервисных запросов.",
     qtyLine: "Количество",
-    adminNote: "Admin note",
+    adminNote: "Примечание",
     statuses: { new: "Новый", in_review: "На проверке", quoted: "Коммерческое предложение", confirmed: "Подтверждено", cancelled: "Отменено", completed: "Завершено" },
     intros: {
       esim: "Укажите страну назначения, дату активации и пакет данных.",
@@ -168,7 +168,7 @@ const copyByLocale = {
     },
   },
   zh: {
-    eyebrow: "Service Desk",
+    eyebrow: "服务",
     title: "服务预订",
     body: "在这里提交 e-SIM 和旅行保险请求，并在账户中跟踪状态。",
     actionBook: "立即预订",
@@ -201,12 +201,12 @@ const copyByLocale = {
     sent: "请求已成功提交。",
     failed: "提交请求失败。",
     myRequests: "我的服务请求",
-    myRequestsEyebrow: "My Requests",
+    myRequestsEyebrow: "我的申请",
     loginToSee: "登录后，您提交的所有服务请求会显示在这里。",
     loading: "加载中...",
     empty: "目前没有服务请求。",
     qtyLine: "数量",
-    adminNote: "Admin note",
+    adminNote: "备注",
     statuses: { new: "新建", in_review: "审核中", quoted: "已报价", confirmed: "已确认", cancelled: "已取消", completed: "已完成" },
     intros: {
       esim: "请输入目的地国家、启用日期和流量需求。",
@@ -539,7 +539,7 @@ function ServicesPageFallback() {
     <main>
       <section className="pageHero serviceHero">
         <div className="container stackMd">
-          <p className="eyebrow serviceEyebrow">Service Desk</p>
+          <p className="eyebrow serviceEyebrow">Үйлчилгээ</p>
           <h1>Үйлчилгээний захиалга</h1>
           <p>Үйлчилгээний хэсгийг ачааллаж байна...</p>
         </div>

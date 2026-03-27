@@ -6,8 +6,9 @@ import { useRouter } from "next/navigation";
 import { ApiError } from "@/lib/api";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useLocale } from "@/components/locale/LocaleProvider";
+import { repairDeep } from "@/lib/text";
 
-const copyByLocale = {
+const rawCopyByLocale = {
   mn: {
     eyebrow: "Бүртгүүлэх",
     title: "Шинэ бүртгэл үүсгэх",
@@ -73,6 +74,8 @@ const copyByLocale = {
     login: "登录",
   },
 } as const;
+
+const copyByLocale = repairDeep(rawCopyByLocale) as typeof rawCopyByLocale;
 
 export default function RegisterPage() {
   const router = useRouter();

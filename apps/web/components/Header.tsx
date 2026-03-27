@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { MarketTicker } from "@/components/MarketTicker";
@@ -13,16 +13,40 @@ function isActive(pathname: string, href: string) {
   return href === "/" ? pathname === href : pathname.startsWith(href);
 }
 
+function isNavItemCurrent(
+  pathname: string,
+  item: { href: string; matchPrefixes?: string[]; children?: { href: string }[] },
+) {
+  const prefixes = item.matchPrefixes?.length ? item.matchPrefixes : [item.href];
+
+  if (prefixes.some((prefix) => isActive(pathname, prefix))) {
+    return true;
+  }
+
+  return item.children?.some((child) => isActive(pathname, child.href)) ?? false;
+}
+
 export function Header() {
   const pathname = usePathname();
   const router = useRouter();
   const { user, logout } = useAuth();
   const messages = useChromeMessages();
   const [open, setOpen] = useState(false);
+  const [openGroupHref, setOpenGroupHref] = useState<string | null>(null);
+
+  const groupedItems = useMemo(
+    () => messages.mainNav.filter((item) => item.children?.length),
+    [messages.mainNav],
+  );
 
   useEffect(() => {
     setOpen(false);
   }, [pathname]);
+
+  useEffect(() => {
+    const activeGroupedItem = groupedItems.find((item) => isNavItemCurrent(pathname, item));
+    setOpenGroupHref(activeGroupedItem?.href || null);
+  }, [groupedItems, pathname]);
 
   const isAdmin = Boolean(user?.role && user.role !== "customer");
 
@@ -39,7 +63,6 @@ export function Header() {
             <MarketTicker />
           </div>
           <div className="recoveredUtilityControls">
-            <LanguageSwitcher />
             <div className="recoveredUtilityMeta recoveredUtilityContact">
               <a href={`tel:${siteData.company.phone}`}>{siteData.company.phone}</a>
               <a href={`mailto:${siteData.company.email}`}>{siteData.company.email}</a>
@@ -67,6 +90,7 @@ export function Header() {
           </div>
 
           <div className="recoveredTopBarActions">
+            <LanguageSwitcher />
             {user ? <span className="meta welcomeChip">{user.fullName}</span> : null}
             {user ? (
               <Link className="btn secondary" href="/account">
@@ -103,16 +127,64 @@ export function Header() {
           <section className="publicSidebarSection">
             <p className="publicSidebarLabel">{messages.utility.menu}</p>
             <nav className="publicSidebarNav">
-              {messages.mainNav.map((item) => (
-                <Link key={item.href} href={item.href} className={isActive(pathname, item.href) ? "current" : ""}>
-                  {item.label}
-                </Link>
-              ))}
+              {messages.mainNav.map((item) => {
+                const itemCurrent = isNavItemCurrent(pathname, item);
+
+                if (!item.children?.length) {
+                  return (
+                    <Link key={item.href} href={item.href} className={itemCurrent ? "current" : ""}>
+                      {item.label}
+                    </Link>
+                  );
+                }
+
+                const isOpen = openGroupHref === item.href;
+                const submenuId = `submenu-${item.href.replace(/[^\w-]/g, "-")}`;
+
+                return (
+                  <div
+                    key={item.href}
+                    className={`publicSidebarGroup${isOpen ? " open" : ""}${itemCurrent ? " current" : ""}`}
+                  >
+                    <button
+                      type="button"
+                      className={`publicSidebarGroupButton${itemCurrent ? " current" : ""}`}
+                      onClick={() =>
+                        setOpenGroupHref((current) => (current === item.href ? null : item.href))
+                      }
+                      aria-expanded={isOpen}
+                      aria-controls={submenuId}
+                      aria-label={item.label}
+                    >
+                      <span>{item.label}</span>
+                      <span className="publicSidebarGroupChevron" aria-hidden="true">
+                        v
+                      </span>
+                    </button>
+                    <div id={submenuId} className={`publicSidebarSubmenu${isOpen ? " open" : ""}`}>
+                      {item.children.map((child) => (
+                        <div key={child.href} className="publicSidebarSubmenuItem">
+                          <Link
+                            href={child.href}
+                            className={`publicSidebarSubmenuLink${isActive(pathname, child.href) ? " current" : ""}`}
+                            aria-label={`${child.label}: ${child.description}`}
+                          >
+                            <strong>{child.label}</strong>
+                            <span>{child.description}</span>
+                          </Link>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
             </nav>
           </section>
 
           <section className="publicSidebarMini">
-            <p className="publicSidebarLabel">{user ? messages.utility.userSection : messages.utility.guestSection}</p>
+            <p className="publicSidebarLabel">
+              {user ? messages.utility.userSection : messages.utility.guestSection}
+            </p>
             <div className="publicSidebarMeta">
               {user ? (
                 <>

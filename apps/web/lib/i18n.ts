@@ -42,7 +42,20 @@ export const localeFlags: Record<Locale, string> = {
 type ChromeMessages = {
   brandTagline: string;
   goMongolia: string;
-  mainNav: { href: string; label: string }[];
+  mainNav: {
+    href: string;
+    label: string;
+    matchPrefixes?: string[];
+    children?: {
+      href: string;
+      label: string;
+      description: string;
+      quickLinks?: {
+        href: string;
+        label: string;
+      }[];
+    }[];
+  }[];
   utility: {
     myAccount: string;
     myBookings: string;
@@ -80,13 +93,50 @@ const rawChromeMessages: Record<Locale, ChromeMessages> = {
     goMongolia: "Миний аялал",
     mainNav: [
       { href: "/about", label: "Бидний тухай" },
-      { href: "/tours", label: "Аяллууд" },
-      { href: "/daily-tours", label: "Өдрийн аялал" },
-      { href: "/destinations", label: "Чиглэлүүд" },
-      { href: "/travel-guide", label: "Аялалын үеийн зөвлөгөө" },
-      { href: "/services", label: "Үйлчилгээ" },
-      { href: "/reviews", label: "Сэтгэгдэл" },
-      { href: "/booking-payment", label: "Захиалга / Төлбөр" },
+      {
+        href: "/ayalluud",
+        label: "Аяллууд",
+        matchPrefixes: ["/ayalluud", "/tours", "/daily-tours", "/destinations"],
+        children: [
+          {
+            href: "/ayalluud/inbound",
+            label: "Гадаад жуулчдад Монголын аялал",
+            description: "Монголд ирж аялах гадаад жуулчдад зориулсан аяллууд",
+          },
+          {
+            href: "/ayalluud/outbound",
+            label: "Монголчуудад гадаад аялал",
+            description: "Гадаад улс руу явах аяллууд",
+          },
+          {
+            href: "/ayalluud/domestic",
+            label: "Дотоод аялал",
+            description: "Монгол орноор аялах аяллууд",
+          },
+        ],
+      },
+      {
+        href: "/services",
+        label: "Үйлчилгээ",
+        matchPrefixes: ["/services", "/travel-guide", "/reviews", "/booking-payment"],
+        children: [
+          {
+            href: "/travel-guide",
+            label: "Аялалын үеийн зөвлөгөө",
+            description: "Аяллын өмнө болон аяллын үеэр хэрэгтэй зөвлөгөө",
+          },
+          {
+            href: "/reviews",
+            label: "Сэтгэгдэл",
+            description: "Санал хүсэлт болон хэрэглэгчийн сэтгэгдэл",
+          },
+          {
+            href: "/booking-payment",
+            label: "Захиалга / Төлбөр",
+            description: "Захиалга, төлбөрийн мэдээллээ нэг дороос харах хэсэг",
+          },
+        ],
+      },
       { href: "/contact", label: "Холбоо барих" },
     ],
     utility: {
@@ -128,9 +178,9 @@ const rawChromeMessages: Record<Locale, ChromeMessages> = {
         {
           title: "Аялал ба үйлчилгээ",
           links: [
-            { href: "/tours", label: "Аяллууд" },
-            { href: "/daily-tours", label: "Өдрийн аялал" },
-            { href: "/destinations", label: "Чиглэлүүд" },
+            { href: "/ayalluud/inbound", label: "Гадаад жуулчдад Монголын аялал" },
+            { href: "/ayalluud/outbound", label: "Монголчуудад гадаад аялал" },
+            { href: "/ayalluud/domestic", label: "Дотоод аялал" },
             { href: "/services", label: "Үйлчилгээ" },
           ],
         },
@@ -152,13 +202,50 @@ const rawChromeMessages: Record<Locale, ChromeMessages> = {
     goMongolia: "My Trip",
     mainNav: [
       { href: "/about", label: "About" },
-      { href: "/tours", label: "Tours" },
-      { href: "/daily-tours", label: "Day Tours" },
-      { href: "/destinations", label: "Destinations" },
-      { href: "/travel-guide", label: "Travel Guide" },
-      { href: "/services", label: "Services" },
-      { href: "/reviews", label: "Reviews" },
-      { href: "/booking-payment", label: "Booking / Payment" },
+      {
+        href: "/ayalluud",
+        label: "Tours",
+        matchPrefixes: ["/ayalluud", "/tours", "/daily-tours", "/destinations"],
+        children: [
+          {
+            href: "/ayalluud/inbound",
+            label: "Mongolia tours for foreign visitors",
+            description: "Tours for international visitors traveling in Mongolia",
+          },
+          {
+            href: "/ayalluud/outbound",
+            label: "International trips for Mongolian travelers",
+            description: "Trips for Mongolian travelers going abroad",
+          },
+          {
+            href: "/ayalluud/domestic",
+            label: "Domestic tours",
+            description: "Tours around Mongolia for local travelers",
+          },
+        ],
+      },
+      {
+        href: "/services",
+        label: "Services",
+        matchPrefixes: ["/services", "/travel-guide", "/reviews", "/booking-payment"],
+        children: [
+          {
+            href: "/travel-guide",
+            label: "Travel Guide",
+            description: "Useful travel tips before and during your trip",
+          },
+          {
+            href: "/reviews",
+            label: "Reviews",
+            description: "Customer feedback and travel impressions",
+          },
+          {
+            href: "/booking-payment",
+            label: "Booking / Payment",
+            description: "Check your booking and payment details in one place",
+          },
+        ],
+      },
       { href: "/contact", label: "Contact" },
     ],
     utility: {
@@ -200,9 +287,9 @@ const rawChromeMessages: Record<Locale, ChromeMessages> = {
         {
           title: "Travel & Services",
           links: [
-            { href: "/tours", label: "Tours" },
-            { href: "/daily-tours", label: "Day Tours" },
-            { href: "/destinations", label: "Destinations" },
+            { href: "/ayalluud/inbound", label: "Mongolia tours for foreign visitors" },
+            { href: "/ayalluud/outbound", label: "International trips for Mongolian travelers" },
+            { href: "/ayalluud/domestic", label: "Domestic tours" },
             { href: "/services", label: "Services" },
           ],
         },
@@ -224,13 +311,50 @@ const rawChromeMessages: Record<Locale, ChromeMessages> = {
     goMongolia: "Моё путешествие",
     mainNav: [
       { href: "/about", label: "О нас" },
-      { href: "/tours", label: "Туры" },
-      { href: "/daily-tours", label: "Однодневные туры" },
-      { href: "/destinations", label: "Направления" },
-      { href: "/travel-guide", label: "Путеводитель" },
-      { href: "/services", label: "Услуги" },
-      { href: "/reviews", label: "Отзывы" },
-      { href: "/booking-payment", label: "Бронирование / Оплата" },
+      {
+        href: "/ayalluud",
+        label: "Туры",
+        matchPrefixes: ["/ayalluud", "/tours", "/daily-tours", "/destinations"],
+        children: [
+          {
+            href: "/ayalluud/inbound",
+            label: "Туры по Монголии для иностранных гостей",
+            description: "Туры для иностранных гостей, приезжающих в Монголию",
+          },
+          {
+            href: "/ayalluud/outbound",
+            label: "Зарубежные поездки для монгольских туристов",
+            description: "Туры для граждан Монголии за рубеж",
+          },
+          {
+            href: "/ayalluud/domestic",
+            label: "Внутренние туры",
+            description: "Путешествия по Монголии для местных туристов",
+          },
+        ],
+      },
+      {
+        href: "/services",
+        label: "Услуги",
+        matchPrefixes: ["/services", "/travel-guide", "/reviews", "/booking-payment"],
+        children: [
+          {
+            href: "/travel-guide",
+            label: "Путеводитель",
+            description: "Полезные советы до поездки и во время путешествия",
+          },
+          {
+            href: "/reviews",
+            label: "Отзывы",
+            description: "Отзывы и впечатления путешественников",
+          },
+          {
+            href: "/booking-payment",
+            label: "Бронирование / Оплата",
+            description: "Раздел для просмотра бронирования и оплаты",
+          },
+        ],
+      },
       { href: "/contact", label: "Контакты" },
     ],
     utility: {
@@ -272,9 +396,9 @@ const rawChromeMessages: Record<Locale, ChromeMessages> = {
         {
           title: "Туры и услуги",
           links: [
-            { href: "/tours", label: "Туры" },
-            { href: "/daily-tours", label: "Однодневные туры" },
-            { href: "/destinations", label: "Направления" },
+            { href: "/ayalluud/inbound", label: "Туры по Монголии для иностранных гостей" },
+            { href: "/ayalluud/outbound", label: "Зарубежные поездки для монгольских туристов" },
+            { href: "/ayalluud/domestic", label: "Внутренние туры" },
             { href: "/services", label: "Услуги" },
           ],
         },
@@ -296,13 +420,50 @@ const rawChromeMessages: Record<Locale, ChromeMessages> = {
     goMongolia: "我的旅程",
     mainNav: [
       { href: "/about", label: "关于我们" },
-      { href: "/tours", label: "旅游线路" },
-      { href: "/daily-tours", label: "一日游" },
-      { href: "/destinations", label: "目的地" },
-      { href: "/travel-guide", label: "旅行指南" },
-      { href: "/services", label: "服务" },
-      { href: "/reviews", label: "评价" },
-      { href: "/booking-payment", label: "预订 / 支付" },
+      {
+        href: "/ayalluud",
+        label: "旅游线路",
+        matchPrefixes: ["/ayalluud", "/tours", "/daily-tours", "/destinations"],
+        children: [
+          {
+            href: "/ayalluud/inbound",
+            label: "面向外国游客的蒙古旅游",
+            description: "为来蒙古旅行的外国游客准备的线路",
+          },
+          {
+            href: "/ayalluud/outbound",
+            label: "面向蒙古游客的出境游",
+            description: "为蒙古游客前往国外准备的线路",
+          },
+          {
+            href: "/ayalluud/domestic",
+            label: "蒙古国内游",
+            description: "在蒙古境内旅行的线路",
+          },
+        ],
+      },
+      {
+        href: "/services",
+        label: "服务",
+        matchPrefixes: ["/services", "/travel-guide", "/reviews", "/booking-payment"],
+        children: [
+          {
+            href: "/travel-guide",
+            label: "旅行建议",
+            description: "出行前后可参考的实用建议",
+          },
+          {
+            href: "/reviews",
+            label: "评价",
+            description: "查看游客反馈与出行感受",
+          },
+          {
+            href: "/booking-payment",
+            label: "预订 / 支付",
+            description: "集中查看预订与支付信息",
+          },
+        ],
+      },
       { href: "/contact", label: "联系我们" },
     ],
     utility: {
@@ -344,9 +505,9 @@ const rawChromeMessages: Record<Locale, ChromeMessages> = {
         {
           title: "旅游与服务",
           links: [
-            { href: "/tours", label: "旅游线路" },
-            { href: "/daily-tours", label: "一日游" },
-            { href: "/destinations", label: "目的地" },
+            { href: "/ayalluud/inbound", label: "面向外国游客的蒙古旅游" },
+            { href: "/ayalluud/outbound", label: "面向蒙古游客的出境游" },
+            { href: "/ayalluud/domestic", label: "蒙古国内游" },
             { href: "/services", label: "服务" },
           ],
         },

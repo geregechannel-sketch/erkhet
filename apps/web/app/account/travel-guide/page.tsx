@@ -1,24 +1,27 @@
+"use client";
+
+import { useLocale } from "@/components/locale/LocaleProvider";
+import { travelAdviceByLocale } from "@/lib/travel-advice";
+
 export default function AccountTravelGuidePage() {
+  const { locale } = useLocale();
+  const advice = travelAdviceByLocale[locale];
+
   return (
     <section className="stackLg">
       <div className="sectionHeading compact">
-        <h1>Аялалын үеийн зөвлөгөө</h1>
+        <h1>{advice.title}</h1>
       </div>
 
       <article className="panel stackMd">
-        <label
-          className="travelAdviceLabel"
-          htmlFor="account-travel-advice-field"
-        >
-          Аялалын үеийн зөвлөгөө
+        <label className="travelAdviceLabel" htmlFor="account-travel-advice-field">
+          {advice.label}
         </label>
         <textarea
           id="account-travel-advice-field"
           className="travelAdviceField"
           readOnly
-          value={
-            "Ерөнхий зөвлөгөө\nАяллын өмнө бичиг баримт, маршрут, холбоо барих мэдээллээ сайтар шалгаарай.\n\nАнхаарах зүйлс\nЦаг агаар, замын нөхцөл, хувцас хэрэглэл, бэлэн мөнгө болон утасны цэнэгээ урьдчилан бэлдээрэй.\n\nАвах зүйлс\nИргэний үнэмлэх эсвэл паспорт, дулаан хувцас, эмийн хэрэгсэл, ус болон хувийн хэрэглээний зүйлсээ авч явахыг зөвлөж байна."
-          }
+          value={advice.fieldValue}
         />
       </article>
     </section>
