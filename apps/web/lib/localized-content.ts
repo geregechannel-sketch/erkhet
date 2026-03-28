@@ -411,14 +411,36 @@ const destinationRegionMeta: Record<
 };
 
 export function getLocalizedBusinessDirections(locale: Locale) {
+  if (locale === "mn") {
+    return [
+      "Гадаад жуулчдыг Монголд аялуулах",
+      "Монгол жуулчдыг гадаад руу аялуулах",
+      "Дотоодын жуулчдыг Монгол орноор аялуулах",
+    ];
+  }
+
   return repairDeep(businessDirectionsByLocale[locale]);
 }
 
 export function getLocalizedTravelStyles(locale: Locale) {
+  if (locale === "mn") {
+    return ["Хуваарьт аялал", "Захиалгат аялал", "Өдрийн аялал"];
+  }
+
   return repairDeep(travelStylesByLocale[locale]);
 }
 
 export function getLocalizedValues(locale: Locale) {
+  if (locale === "mn") {
+    return [
+      "Аюулгүй байдал нэн тэргүүнд",
+      "Хариуцлагатай аялал жуулчлал",
+      "Соёлын хүндэтгэл",
+      "Зочны тав тухад төвлөрсөн үйлчилгээ",
+      "Шударга, ойлгомжтой мэдээлэл",
+    ];
+  }
+
   return repairDeep(valuesByLocale[locale]);
 }
 

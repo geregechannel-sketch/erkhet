@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { TravelerDetailsTable } from "@/components/bookings/TravelerDetailsTable";
@@ -9,8 +9,9 @@ import { TravelerDetailsEditor } from "@/components/forms/TravelerDetailsEditor"
 import { useLocale } from "@/components/locale/LocaleProvider";
 import { ApiError, authHeaders, browserApiFetch } from "@/lib/api";
 import type { Locale } from "@/lib/i18n";
+import { parseSupportType } from "@/lib/support-copy";
 import { repairDeep } from "@/lib/text";
-import type { TravelerDetail } from "@/lib/types";
+import type { SupportRequest, TravelerDetail } from "@/lib/types";
 
 type LocaleText = Record<Locale, string>;
 
@@ -733,6 +734,8 @@ export default function EnquireStepPage() {
   const [form, setForm] = useState<EnquiryForm>(defaultForm);
   const [message, setMessage] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [isMobileWizard, setIsMobileWizard] = useState(false);
+  const stepBarRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     try {
@@ -758,6 +761,34 @@ export default function EnquireStepPage() {
   useEffect(() => {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(form));
   }, [form]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return undefined;
+    }
+
+    const media = window.matchMedia("(max-width: 720px)");
+    const syncLayout = () => setIsMobileWizard(media.matches);
+
+    syncLayout();
+
+    if (typeof media.addEventListener === "function") {
+      media.addEventListener("change", syncLayout);
+      return () => media.removeEventListener("change", syncLayout);
+    }
+
+    media.addListener(syncLayout);
+    return () => media.removeListener(syncLayout);
+  }, []);
+
+  useEffect(() => {
+    if (!isMobileWizard) {
+      return;
+    }
+
+    const currentStepButton = stepBarRef.current?.querySelector<HTMLButtonElement>(".wizardStepPill.current");
+    currentStepButton?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+  }, [isMobileWizard, step]);
 
   const currentStepLabel = copy.stepLabels[step - 1];
   const activeLine =
@@ -881,7 +912,7 @@ export default function EnquireStepPage() {
     setMessage(null);
 
     try {
-      await browserApiFetch("/support-requests", {
+      const created = await browserApiFetch<SupportRequest>("/support-requests", {
         method: "POST",
         headers: token ? authHeaders(token) : undefined,
         body: JSON.stringify({
@@ -891,10 +922,19 @@ export default function EnquireStepPage() {
           customerName: form.fullName,
           customerEmail: form.email,
           customerPhone: form.phone,
+          locale,
         }),
       });
       window.localStorage.removeItem(STORAGE_KEY);
-      router.push("/message-success");
+      const params = new URLSearchParams();
+      const supportType = parseSupportType(created.type);
+      if (supportType) {
+        params.set("type", supportType);
+      }
+      if (created.supportReference) {
+        params.set("reference", created.supportReference);
+      }
+      router.push(params.size > 0 ? `/message-success?${params.toString()}` : "/message-success");
     } catch (error) {
       setMessage(error instanceof ApiError ? error.message : copy.submitError);
     } finally {
@@ -916,7 +956,7 @@ export default function EnquireStepPage() {
 
       <section className="section">
         <div className="container stackLg">
-          <div className="wizardStepsBar">
+          <div className="wizardStepsBar" ref={stepBarRef}>
             {copy.stepLabels.map((label, index) => (
               <button
                 key={label}

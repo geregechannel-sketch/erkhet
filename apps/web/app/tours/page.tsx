@@ -26,27 +26,26 @@ function buildQuery(searchParams: Record<string, string | string[] | undefined>)
 const copyByLocale = {
   mn: {
     title: "Аяллууд",
-    body: "Та аяллын маршрут болон захиалгат аяллын мэдээллийг эндээс үзээрэй.",
+    body: "Маршрут, хэлбэр, чиглэл болон захиалгат аяллын мэдээллээ эндээс шүүж үзээрэй.",
     search: "Аялал хайх",
     allBusiness: "Бүх чиглэл",
     domestic: "Дотоод аялал",
     inbound: "Монголд аялуулах",
     outbound: "Гадаад аялал",
-    allFormat: "Бүх формат",
+    allFormat: "Бүх хэлбэр",
     scheduled: "Хуваарьт",
     custom: "Захиалгат",
-    allKinds: "Бүх төрлөөр",
+    allKinds: "Бүх төрөл",
     multiDay: "Олон өдрийн",
     dayTour: "Өдрийн аялал",
     filter: "Шүүх",
     empty: "Таны хайлттай тохирох аялал одоогоор олдсонгүй.",
     outboundTitle: "Онцлох гадаад аяллын чиглэлүүд",
-    outboundBody:
-      "Москва, Бээжин, Дубай чиглэлийн аяллын мэдээллийг нэг стандарт хэлбэрээр эндээс сонгоорой.",
+    outboundBody: "Москва, Бээжин, Дубай зэрэг чиглэлийг нэг төрлийн ойлгомжтой card хэлбэрээр хараарай.",
   },
   en: {
     title: "Tours",
-    body: "See route details and custom tour information here.",
+    body: "Browse itineraries, formats, categories, and custom tour options from one page.",
     search: "Search tours",
     allBusiness: "All categories",
     domestic: "Domestic tours",
@@ -65,7 +64,7 @@ const copyByLocale = {
   },
   ru: {
     title: "Туры",
-    body: "Здесь можно посмотреть маршруты и информацию по индивидуальным турам.",
+    body: "Здесь можно отфильтровать маршруты, форматы, направления и индивидуальные туры.",
     search: "Поиск туров",
     allBusiness: "Все направления",
     domestic: "Внутренние туры",
@@ -80,11 +79,11 @@ const copyByLocale = {
     filter: "Фильтр",
     empty: "По вашему запросу туры пока не найдены.",
     outboundTitle: "Популярные зарубежные направления",
-    outboundBody: "Москва, Пекин и Дубай показаны в едином понятном формате.",
+    outboundBody: "Москва, Пекин и Дубай показаны в едином понятном карточном формате.",
   },
   zh: {
     title: "旅游线路",
-    body: "在这里查看线路安排和定制旅行信息。",
+    body: "在这里按路线形式、方向和定制需求筛选适合您的行程。",
     search: "搜索线路",
     allBusiness: "全部方向",
     domestic: "国内游",
@@ -205,7 +204,7 @@ export default async function ToursPage({
           ) : (
             <div className="grid c3">
               {visibleTours.map((tour) => (
-                <TourCard key={tour.slug} tour={tour} />
+                <TourCard key={tour.slug} tour={tour} locale={locale} />
               ))}
             </div>
           )}

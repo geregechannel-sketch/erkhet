@@ -1,5 +1,6 @@
-﻿import type { Tour } from "@/lib/types";
+import type { Locale } from "@/lib/i18n";
 import { repairText } from "@/lib/text";
+import type { Tour } from "@/lib/types";
 
 export type TourItineraryItem = {
   time: string;
@@ -63,11 +64,31 @@ const ub4dItineraryData: TourItineraryDay[] = [
   },
 ];
 
-function createFallbackDay(rawItem: string, index: number): TourItineraryDay {
+const fallbackDayLabels: Record<Locale, { day: (index: number) => string; title: (index: number) => string }> = {
+  mn: {
+    day: (index) => `${index} өдөр`,
+    title: (index) => `Хөтөлбөр ${index}`,
+  },
+  en: {
+    day: (index) => `Day ${index}`,
+    title: (index) => `Program ${index}`,
+  },
+  ru: {
+    day: (index) => `День ${index}`,
+    title: (index) => `Программа ${index}`,
+  },
+  zh: {
+    day: (index) => `第 ${index} 天`,
+    title: (index) => `行程 ${index}`,
+  },
+};
+
+function createFallbackDay(rawItem: string, index: number, locale: Locale): TourItineraryDay {
   const repaired = repairText(rawItem).trim();
   const [left, right] = repaired.split(/:\s*/, 2);
-  const day = (right ? left : "").trim() || `${index + 1} өдөр`;
-  const title = (right || repaired).trim() || `Хөтөлбөр ${index + 1}`;
+  const fallback = fallbackDayLabels[locale];
+  const day = (right ? left : "").trim() || fallback.day(index + 1);
+  const title = (right || repaired).trim() || fallback.title(index + 1);
 
   return {
     day,
@@ -82,12 +103,12 @@ function createFallbackDay(rawItem: string, index: number): TourItineraryDay {
   };
 }
 
-export function getStructuredItinerary(tour: Tour): TourItineraryDay[] {
-  if (tour.slug === "ub-4d") {
+export function getStructuredItinerary(tour: Tour, locale: Locale = "mn"): TourItineraryDay[] {
+  if (tour.slug === "ub-4d" && locale === "mn") {
     return ub4dItineraryData;
   }
 
-  return tour.itinerary.map((item, index) => createFallbackDay(item, index));
+  return tour.itinerary.map((item, index) => createFallbackDay(item, index, locale));
 }
 
 export function displayItineraryValue(value?: string | null) {

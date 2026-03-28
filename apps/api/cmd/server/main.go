@@ -212,6 +212,7 @@ func ensureDemoCustomerScenario(repo store.Repository, user store.User) {
 			user.FullName,
 			user.Email,
 			user.Phone,
+			user.PreferredLanguage,
 		); err != nil {
 			log.Printf("failed to create demo support for %s: %v", user.Email, err)
 		}

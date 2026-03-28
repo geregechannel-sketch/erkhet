@@ -73,6 +73,7 @@ type supportRequestInput struct {
 	CustomerPhone    string `json:"customerPhone"`
 	BookingReference string `json:"bookingReference"`
 	TourSlug         string `json:"tourSlug"`
+	Locale           string `json:"locale"`
 }
 
 func (s Server) createSupportRequest(w http.ResponseWriter, r *http.Request) {
@@ -94,14 +95,27 @@ func (s Server) createSupportRequest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var userID *int64
+	preferredLanguage := ""
 	if session, err := s.currentSession(r); err == nil {
 		userID = &session.User.ID
+		preferredLanguage = session.User.PreferredLanguage
 	}
 	if userID == nil && strings.TrimSpace(input.CustomerName) == "" {
 		writeError(w, http.StatusBadRequest, "customer name is required")
 		return
 	}
-	created, err := s.Repo.CreateSupportRequest(userID, input.BookingReference, input.TourSlug, input.Type, input.Subject, input.Message, input.CustomerName, input.CustomerEmail, input.CustomerPhone)
+	created, err := s.Repo.CreateSupportRequest(
+		userID,
+		input.BookingReference,
+		input.TourSlug,
+		input.Type,
+		input.Subject,
+		input.Message,
+		input.CustomerName,
+		input.CustomerEmail,
+		input.CustomerPhone,
+		resolveSupportRequestLocale(input.Locale, preferredLanguage, r.Header.Get("Accept-Language")),
+	)
 	if err != nil {
 		if errors.Is(err, store.ErrNotFound) {
 			writeError(w, http.StatusBadRequest, "booking or tour reference is invalid")
@@ -121,6 +135,25 @@ type legacyInquiryInput struct {
 	PeopleCount    int    `json:"people_count"`
 	DaysCount      int    `json:"days_count"`
 	Note           string `json:"note"`
+	Locale         string `json:"locale"`
+}
+
+func resolveSupportRequestLocale(explicitLocale, preferredLanguage, acceptLanguage string) string {
+	for _, candidate := range []string{explicitLocale, preferredLanguage, acceptLanguage} {
+		normalized := strings.ToLower(strings.TrimSpace(candidate))
+		switch {
+		case strings.HasPrefix(normalized, "zh"), strings.HasPrefix(normalized, "cn"):
+			return "zh"
+		case strings.HasPrefix(normalized, "ru"):
+			return "ru"
+		case strings.HasPrefix(normalized, "en"):
+			return "en"
+		case strings.HasPrefix(normalized, "mn"):
+			return "mn"
+		}
+	}
+
+	return "mn"
 }
 
 func (s Server) createInquiryAlias(w http.ResponseWriter, r *http.Request) {
@@ -147,7 +180,18 @@ func (s Server) createInquiryAlias(w http.ResponseWriter, r *http.Request) {
 		lines = append(lines, strings.TrimSpace(input.Note))
 	}
 	message := strings.Join(lines, "\n")
-	created, err := s.Repo.CreateSupportRequest(nil, "", "", "support", "Public inquiry", message, input.Name, input.Email, input.Phone)
+	created, err := s.Repo.CreateSupportRequest(
+		nil,
+		"",
+		"",
+		"support",
+		"Public inquiry",
+		message,
+		input.Name,
+		input.Email,
+		input.Phone,
+		resolveSupportRequestLocale(input.Locale, "", r.Header.Get("Accept-Language")),
+	)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "failed to save inquiry")
 		return

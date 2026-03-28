@@ -6,6 +6,7 @@ import { formatCurrency } from "@/lib/format";
 import { defaultLocale, type Locale } from "@/lib/i18n";
 import { getRequestLocale } from "@/lib/request-locale";
 import { getPublicBusinessLine } from "@/lib/tour-audience";
+import { localizeTour } from "@/lib/tour-localization";
 import { displayItineraryValue, getStructuredItinerary } from "@/lib/tour-itinerary";
 import type { Tour } from "@/lib/types";
 
@@ -20,7 +21,7 @@ const copyByLocale = {
     itinerary: "Хөтөлбөр",
     day: "Өдөр",
     time: "Цаг",
-    duration: "Ноогдох хугацаа",
+    duration: "Үргэлжлэх хугацаа",
     program: "Хөтөлбөр",
     included: "Үүнд багтсан",
     excluded: "Үүнд багтаагүй",
@@ -70,7 +71,7 @@ const copyByLocale = {
     itinerary: "Программа",
     day: "День",
     time: "Время",
-    duration: "Продолжительность",
+    duration: "Длительность",
     program: "Описание",
     included: "Включено",
     excluded: "Не включено",
@@ -128,26 +129,27 @@ export default async function TourDetailPage({ params }: { params: Promise<{ id:
     notFound();
   }
 
-  const itineraryDays = getStructuredItinerary(tour);
+  const localizedTour = localizeTour(tour, locale);
+  const itineraryDays = getStructuredItinerary(localizedTour, locale);
   const publicBusinessLine = getPublicBusinessLine(tour);
-  const price = tour.priceAmount
-    ? formatCurrency(tour.priceAmount, tour.currency || "MNT")
-    : tour.pricingNote || copy.priceOnRequest;
+  const price = localizedTour.priceAmount
+    ? formatCurrency(localizedTour.priceAmount, localizedTour.currency || "MNT", locale)
+    : localizedTour.pricingNote || copy.priceOnRequest;
 
   return (
     <main>
       <section className="pageHero">
         <div className="container detailHero">
           <div className="stackMd">
-            <span className="badge">{copy.dayLabel(tour.durationDays, tour.durationNights)}</span>
-            <h1>{tour.title}</h1>
-            <p>{tour.description}</p>
+            <span className="badge">{copy.dayLabel(localizedTour.durationDays, localizedTour.durationNights)}</span>
+            <h1>{localizedTour.title}</h1>
+            <p>{localizedTour.description}</p>
             <div className="heroActions">
-              <SaveTourButton slug={tour.slug} />
+              <SaveTourButton slug={localizedTour.slug} />
               <span className="priceTag">{price}</span>
             </div>
           </div>
-          <img className="detailCover" src={tour.coverImage} alt={tour.title} />
+          <img className="detailCover" src={localizedTour.coverImage} alt={localizedTour.title} />
         </div>
       </section>
 
@@ -158,7 +160,7 @@ export default async function TourDetailPage({ params }: { params: Promise<{ id:
               <div className="detailMetaGrid">
                 <div>
                   <strong>{copy.route}</strong>
-                  <p>{tour.route || copy.unknown}</p>
+                  <p>{localizedTour.route || copy.unknown}</p>
                 </div>
                 <div>
                   <strong>{copy.category}</strong>
@@ -166,12 +168,12 @@ export default async function TourDetailPage({ params }: { params: Promise<{ id:
                 </div>
                 <div>
                   <strong>{copy.format}</strong>
-                  <p>{copy.operationType[tour.operationType]}</p>
+                  <p>{copy.operationType[localizedTour.operationType]}</p>
                 </div>
                 <div>
                   <strong>{copy.seats}</strong>
                   <p>
-                    {tour.availabilityCount} / {tour.capacity}
+                    {localizedTour.availabilityCount} / {localizedTour.capacity}
                   </p>
                 </div>
               </div>
@@ -242,7 +244,7 @@ export default async function TourDetailPage({ params }: { params: Promise<{ id:
                   <div className="content stackSm">
                     <h4>{copy.included}</h4>
                     <ul className="list compact">
-                      {tour.inclusions.map((item) => (
+                      {localizedTour.inclusions.map((item) => (
                         <li key={item}>{item}</li>
                       ))}
                     </ul>
@@ -252,7 +254,7 @@ export default async function TourDetailPage({ params }: { params: Promise<{ id:
                   <div className="content stackSm">
                     <h4>{copy.excluded}</h4>
                     <ul className="list compact">
-                      {tour.exclusions.map((item) => (
+                      {localizedTour.exclusions.map((item) => (
                         <li key={item}>{item}</li>
                       ))}
                     </ul>
@@ -262,7 +264,7 @@ export default async function TourDetailPage({ params }: { params: Promise<{ id:
             </div>
           </article>
 
-          <BookingPanel tour={tour} />
+          <BookingPanel tour={localizedTour} />
         </div>
       </section>
     </main>

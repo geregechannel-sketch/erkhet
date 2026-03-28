@@ -59,7 +59,6 @@ export function Header() {
       <div className="recoveredUtilityBar">
         <div className="container recoveredUtilityInner">
           <div className="recoveredMenuBar">
-            <p className="recoveredMenuLabel">{messages.utility.menu}</p>
             <nav className="recoveredMenuNav" aria-label={messages.utility.menu}>
               {messages.mainNav.map((item) => {
                 const itemCurrent = isNavItemCurrent(pathname, item);
@@ -172,7 +171,7 @@ export function Header() {
 
       <aside className={`publicSidebar recoveredSidebar${open ? " open" : ""}`}>
         <div className="publicSidebarInner">
-          <section className="publicSidebarSection">
+          <section className="publicSidebarSection publicSidebarPrimaryNav">
             <p className="publicSidebarLabel">{messages.utility.menu}</p>
             <nav className="publicSidebarNav">
               {messages.mainNav.map((item) => {

@@ -1,22 +1,90 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { useLocale } from "@/components/locale/LocaleProvider";
 import { ApiError, authHeaders, browserApiFetch } from "@/lib/api";
 import { formatDate } from "@/lib/format";
+import { getSupportAutoReply, getSupportRequestAutoReply, supportStatusLabels, supportTypeLabels } from "@/lib/support-copy";
 import type { Booking, SupportRequest } from "@/lib/types";
 
-const requestTypeLabels = {
-  support: "Тусламж",
-  feedback: "Санал хүсэлт",
-  complaint: "Гомдол",
+const copyByLocale = {
+  mn: {
+    title: "Санал хүсэлт",
+    formTitle: "Хүсэлт илгээх",
+    intro: "Та бидэнд асуулт, санал, гомдлоо илгээж болно. Автомат хариу шууд бүртгэгдэж, манай баг дараагийн шатанд холбогдоно.",
+    bookingPlaceholder: "Холбогдох захиалга сонгоогүй",
+    subject: "Гарчиг",
+    message: "Тайлбар",
+    submit: "Илгээх",
+    success: "Таны хүсэлтийг амжилттай хүлээн авлаа.",
+    error: "Хүсэлт илгээхэд алдаа гарлаа.",
+    autoReplyTitle: "Автомат хариу",
+    referenceLabel: "Лавлагааны дугаар",
+    empty: "Одоогоор илгээсэн хүсэлт алга.",
+    linkedBooking: "Холбогдох захиалга",
+    statusLabel: "Төлөв",
+  },
+  en: {
+    title: "Support requests",
+    formTitle: "Send a request",
+    intro: "Send us your question, feedback, or complaint. An automatic reply is logged right away and our team follows up next.",
+    bookingPlaceholder: "No linked booking",
+    subject: "Subject",
+    message: "Message",
+    submit: "Send",
+    success: "Your request has been received successfully.",
+    error: "Failed to send your request.",
+    autoReplyTitle: "Automatic reply",
+    referenceLabel: "Reference",
+    empty: "No support requests yet.",
+    linkedBooking: "Linked booking",
+    statusLabel: "Status",
+  },
+  ru: {
+    title: "Обращения",
+    formTitle: "Отправить запрос",
+    intro: "Вы можете отправить нам вопрос, отзыв или жалобу. Автоответ фиксируется сразу, затем с вами свяжется наша команда.",
+    bookingPlaceholder: "Без связанного бронирования",
+    subject: "Тема",
+    message: "Сообщение",
+    submit: "Отправить",
+    success: "Ваш запрос успешно получен.",
+    error: "Не удалось отправить запрос.",
+    autoReplyTitle: "Автоответ",
+    referenceLabel: "Номер обращения",
+    empty: "Пока нет отправленных запросов.",
+    linkedBooking: "Связанное бронирование",
+    statusLabel: "Статус",
+  },
+  zh: {
+    title: "支持请求",
+    formTitle: "提交请求",
+    intro: "您可以向我们发送问题、反馈或投诉。系统会立即记录自动回复，随后由团队继续跟进。",
+    bookingPlaceholder: "未选择关联预订",
+    subject: "主题",
+    message: "说明",
+    submit: "发送",
+    success: "您的请求已成功提交。",
+    error: "发送请求失败。",
+    autoReplyTitle: "自动回复",
+    referenceLabel: "请求编号",
+    empty: "暂时还没有提交记录。",
+    linkedBooking: "关联预订",
+    statusLabel: "状态",
+  },
 } as const;
 
 export default function SupportPage() {
   const { user, token } = useAuth();
+  const { locale } = useLocale();
+  const copy = useMemo(() => copyByLocale[locale], [locale]);
+  const typeLabels = useMemo(() => supportTypeLabels[locale], [locale]);
+  const statusLabels = useMemo(() => supportStatusLabels[locale], [locale]);
   const [requests, setRequests] = useState<SupportRequest[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [message, setMessage] = useState<string | null>(null);
+  const [lastSubmitted, setLastSubmitted] = useState<SupportRequest | null>(null);
 
   const loadData = async () => {
     if (!token) return;
@@ -40,7 +108,7 @@ export default function SupportPage() {
     const formData = new FormData(event.currentTarget);
 
     try {
-      await browserApiFetch<SupportRequest>("/support-requests", {
+      const created = await browserApiFetch<SupportRequest>("/support-requests", {
         method: "POST",
         headers: authHeaders(token),
         body: JSON.stringify({
@@ -51,57 +119,65 @@ export default function SupportPage() {
           customerName: user?.fullName,
           customerEmail: user?.email,
           customerPhone: user?.phone,
+          locale,
         }),
       });
       event.currentTarget.reset();
+      setLastSubmitted(created);
       await loadData();
-      setMessage("Таны хүсэлтийг амжилттай хүлээн авлаа.");
+      setMessage(copy.success);
     } catch (error) {
-      setMessage(
-        error instanceof ApiError ? error.message : "Хүсэлт илгээхэд алдаа гарлаа.",
-      );
+      setLastSubmitted(null);
+      setMessage(error instanceof ApiError ? error.message : copy.error);
     }
   };
 
   return (
     <section className="stackLg">
       <div className="sectionHeading compact">
-        <h1>Санал хүсэлт</h1>
+        <h1>{copy.title}</h1>
       </div>
 
       <article className="panel stackMd">
-        <h2>Санал хүсэлт илгээх</h2>
-        <p className="meta">
-          Та бүхэн бидэнтэй бүх сувгаар дамжуулан холбогдох боломжтой. Бид
-          тантай эргэн хурдан хугацаанд холбогдох болно.
-        </p>
+        <h2>{copy.formTitle}</h2>
+        <p className="meta">{copy.intro}</p>
         <form className="formGrid" onSubmit={onSubmit}>
           <select name="type" defaultValue="support">
-            <option value="support">{requestTypeLabels.support}</option>
-            <option value="feedback">{requestTypeLabels.feedback}</option>
-            <option value="complaint">{requestTypeLabels.complaint}</option>
+            <option value="support">{typeLabels.support}</option>
+            <option value="feedback">{typeLabels.feedback}</option>
+            <option value="complaint">{typeLabels.complaint}</option>
           </select>
           <select name="bookingReference" defaultValue="">
-            <option value="">Холбогдох захиалга сонгохгүй</option>
+            <option value="">{copy.bookingPlaceholder}</option>
             {bookings.map((booking) => (
               <option key={booking.bookingReference} value={booking.bookingReference}>
                 {booking.tourTitle}
               </option>
             ))}
           </select>
-          <input className="full" name="subject" placeholder="Гарчиг" required />
-          <textarea className="full" name="message" placeholder="Тайлбар" required />
+          <input className="full" name="subject" placeholder={copy.subject} required />
+          <textarea className="full" name="message" placeholder={copy.message} required />
           <button className="btn primary full" type="submit">
-            Илгээх
+            {copy.submit}
           </button>
         </form>
       </article>
 
       {message ? <p className="inlineMessage success">{message}</p> : null}
 
+      {lastSubmitted ? (
+        <article className="panel stackSm">
+          <p className="eyebrow">{copy.autoReplyTitle}</p>
+          <p className="meta">
+            <strong>{copy.referenceLabel}:</strong> {lastSubmitted.supportReference}
+          </p>
+          <p>{getSupportRequestAutoReply(locale, lastSubmitted)}</p>
+        </article>
+      ) : null}
+
       <div className="stackMd">
         {requests.length === 0 ? (
-          <article className="panel emptyState">Одоогоор ирүүлсэн хүсэлт алга.</article>
+          <article className="panel emptyState">{copy.empty}</article>
         ) : (
           requests.map((request) => (
             <article key={request.supportReference} className="panel stackSm">
@@ -109,16 +185,31 @@ export default function SupportPage() {
                 <div>
                   <h2>{request.subject}</h2>
                   <p className="meta">
-                    {requestTypeLabels[request.type as keyof typeof requestTypeLabels] ||
-                      "Хүсэлт"}{" "}
-                    • {formatDate(request.createdAt)}
+                    {typeLabels[request.type]} • {statusLabels[request.status]} • {formatDate(request.createdAt)}
                   </p>
                 </div>
               </div>
               <p>{request.message}</p>
+              <p className="meta">
+                <strong>{copy.referenceLabel}:</strong> {request.supportReference}
+              </p>
               {request.bookingReference ? (
-                <p className="meta">Холбогдох захиалга: {request.bookingReference}</p>
+                <p className="meta">
+                  <strong>{copy.linkedBooking}:</strong> {request.bookingReference}
+                </p>
               ) : null}
+              <p className="meta">
+                <strong>{copy.statusLabel}:</strong> {statusLabels[request.status]}
+              </p>
+              {(request.events ?? []).filter((event) => event.eventType !== "created").map((event) => (
+                <article key={event.id} className="panel stackSm">
+                  <div className="rowActions spread">
+                    <strong>{event.eventType === "auto_reply" ? copy.autoReplyTitle : event.actorLabel}</strong>
+                    <span className="meta">{formatDate(event.createdAt)}</span>
+                  </div>
+                  <p>{event.eventType === "auto_reply" ? getSupportAutoReply(locale, request.type) : event.message}</p>
+                </article>
+              ))}
             </article>
           ))
         )}

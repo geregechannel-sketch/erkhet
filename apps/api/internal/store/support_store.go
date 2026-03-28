@@ -30,18 +30,7 @@ const supportSelect = `
 	left join tours t on t.id = s.tour_id
 `
 
-func autoReplyMessage(supportType string) string {
-	switch supportType {
-	case "complaint":
-		return "Таны гомдлыг хүлээн авлаа. Манай баг бүртгэж авсан бөгөөд боломжит хамгийн ойрын хугацаанд эргэн холбогдоно."
-	case "feedback":
-		return "Таны санал хүсэлтийг хүлээн авлаа. Бид үйлчилгээний чанараа сайжруулахдаа үүнийг ашиглана."
-	default:
-		return "Таны хүсэлтийг хүлээн авлаа. Манай оператор танд тун удахгүй эргэн холбогдоно."
-	}
-}
-
-func (r Repository) CreateSupportRequest(userID *int64, bookingReference, tourSlug, supportType, subject, message, customerName, customerEmail, customerPhone string) (SupportRequest, error) {
+func (r Repository) CreateSupportRequest(userID *int64, bookingReference, tourSlug, supportType, subject, message, customerName, customerEmail, customerPhone, locale string) (SupportRequest, error) {
 	var bookingID any = nil
 	if strings.TrimSpace(bookingReference) != "" {
 		var id int64
@@ -121,7 +110,8 @@ func (r Repository) CreateSupportRequest(userID *int64, bookingReference, tourSl
 	if err := r.insertSupportEvent(reference, "created", "Support request created", "Customer"); err != nil {
 		return SupportRequest{}, err
 	}
-	if err := r.insertSupportEvent(reference, "auto_reply", autoReplyMessage(supportType), "Auto responder"); err != nil {
+	autoReply := localizedSupportAutoReply(locale, supportType)
+	if err := r.insertSupportEvent(reference, "auto_reply", autoReply.Message, autoReply.ActorLabel); err != nil {
 		return SupportRequest{}, err
 	}
 	return r.GetSupportRequestByReference(reference, true)
@@ -140,6 +130,11 @@ func (r Repository) ListSupportRequestsByUser(userID int64) ([]SupportRequest, e
 		if err != nil {
 			return nil, err
 		}
+		events, err := r.ListSupportEvents(request.SupportReference)
+		if err != nil {
+			return nil, err
+		}
+		request.Events = events
 		items = append(items, request)
 	}
 	return items, rows.Err()

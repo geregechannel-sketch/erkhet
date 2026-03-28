@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { TourCard } from "@/components/tours/TourCard";
 import { safeServerApiFetch } from "@/lib/api";
 import {
@@ -9,6 +9,7 @@ import {
 } from "@/lib/localized-content";
 import { getRequestLocale } from "@/lib/request-locale";
 import { repairText } from "@/lib/text";
+import { localizeTour } from "@/lib/tour-localization";
 import type { Tour } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -17,29 +18,31 @@ const copyByLocale = {
   mn: {
     shortcuts: [
       {
-        title: "Аялалын үеийн зөвлөгөө",
-        body: "Аяллын үеэр хэрэг болох ерөнхий зөвлөгөө, анхаарах зүйлс, авч явах зүйлсээ эндээс хараарай.",
+        title: "Аяллын зөвлөгөө",
+        body: "Аялалд гарахын өмнө хэрэгтэй зөвлөмж, анхаарах зүйлс, авч явах зүйлсээ нэг дороос хараарай.",
         href: "/travel-guide",
       },
       {
         title: "Захиалга / Төлбөр",
-        body: "Хийсэн захиалга, төлбөрийн мэдээллээ нэг дороос хараарай.",
+        body: "Хийсэн захиалга, төлбөрийн мэдээллээ өөрийн хэсгээс нэг дороос хараарай.",
         href: "/booking-payment",
       },
       {
         title: "10 алхамт төлөвлөлт",
-        body: "Зорилго, чиглэл, төсөв, нэмэлт хэрэгцээгээ алхам алхмаар илгээх төлөвлөлтийн хэсэг.",
+        body: "Зорилго, чиглэл, төсөв, нэмэлт хэрэгцээгээ алхам алхмаар илгээх төлөвлөлтийн урсгал.",
         href: "/enquire/step/1",
       },
     ],
     heroEyebrow: "2025 оноос",
-    heroTitle: "Монгол, гадаад, дотоод аяллаа нэг системээс төлөвлөж, захиалж, хянаарай",
-    heroBody: "Эрхэт Солар Турс ХХК нь аяллын мэдээлэл, захиалга, төлбөр, үйлчилгээний хүсэлтээ нэг дороос авах боломжтой аяллын платформ юм.",
+    heroTitle: "Дотоод, гадаад аяллаа нэг дороос төлөвлөж, захиалж, хянаарай",
+    heroBody:
+      "Эрхэт Солар Турс ХХК нь аяллын мэдээлэл, захиалга, төлбөр, нэмэлт үйлчилгээний хүсэлтийг нэг урсгалд нэгтгэсэн аяллын платформ юм.",
     heroPrimaryCta: "Аяллууд үзэх",
     heroSecondaryCta: "Аялал төлөвлөх",
     spotlightAlt: "Онцлох аяллын зураг",
     spotlightEyebrow: "Онцлох маршрут",
-    spotlightBody: "Олон өдрийн аялал, өдрийн маршрут, custom request болон нэмэлт үйлчилгээний хүсэлтээ нэг цонхоор эхлүүлэх боломжтой.",
+    spotlightBody:
+      "Олон өдрийн аялал, өдрийн маршрут, захиалгат хүсэлт болон нэмэлт үйлчилгээний урсгалаа нэг цонхоор эхлүүлэх боломжтой.",
     snapshotPills: ["Аялал", "Захиалга", "Төлбөр", "Дэмжлэг"],
     shortcutsEyebrow: "Шуурхай хэсгүүд",
     shortcutsTitle: "Аяллаа эхлүүлэх үндсэн цэгүүд",
@@ -60,13 +63,26 @@ const copyByLocale = {
   },
   en: {
     shortcuts: [
-      { title: "Travel Guide", body: "See visas, preparation tips, destination guidance, policies, and FAQ in one place.", href: "/travel-guide" },
-      { title: "Booking / Payment", body: "Track bookings, payment records, and statuses from your account and booking center.", href: "/booking-payment" },
-      { title: "10-Step Planning", body: "A structured enquiry flow for goals, route, budget, and supporting services.", href: "/enquire/step/1" },
+      {
+        title: "Travel Guide",
+        body: "See visas, preparation tips, destination guidance, policies, and FAQ in one place.",
+        href: "/travel-guide",
+      },
+      {
+        title: "Booking / Payment",
+        body: "Track bookings, payment records, and statuses from your account.",
+        href: "/booking-payment",
+      },
+      {
+        title: "10-Step Planning",
+        body: "A structured enquiry flow for goals, route, budget, and supporting services.",
+        href: "/enquire/step/1",
+      },
     ],
     heroEyebrow: "Since 2025",
     heroTitle: "Plan, book, and manage your Mongolia and international trips from one system",
-    heroBody: "Erkhet Solar Tours LLC brings travel information, bookings, payments, service requests, and customer management into one connected platform.",
+    heroBody:
+      "Erkhet Solar Tours LLC brings travel information, bookings, payments, service requests, and customer management into one connected platform.",
     heroPrimaryCta: "Browse tours",
     heroSecondaryCta: "Plan a trip",
     spotlightAlt: "Featured route",
@@ -92,13 +108,26 @@ const copyByLocale = {
   },
   ru: {
     shortcuts: [
-      { title: "Путеводитель", body: "Визы, подготовка, советы по направлению, политики и FAQ в одном месте.", href: "/travel-guide" },
-      { title: "Бронирование / Оплата", body: "Отслеживайте бронирования, платежи и статусы из кабинета и booking center.", href: "/booking-payment" },
-      { title: "Планирование в 10 шагов", body: "Пошаговый сценарий для маршрута, бюджета и дополнительных услуг.", href: "/enquire/step/1" },
+      {
+        title: "Путеводитель",
+        body: "Визы, подготовка, советы по направлению, правила и FAQ в одном месте.",
+        href: "/travel-guide",
+      },
+      {
+        title: "Бронирование / Оплата",
+        body: "Отслеживайте бронирования, платежи и статусы из личного кабинета.",
+        href: "/booking-payment",
+      },
+      {
+        title: "Планирование в 10 шагов",
+        body: "Пошаговый сценарий для маршрута, бюджета и дополнительных услуг.",
+        href: "/enquire/step/1",
+      },
     ],
     heroEyebrow: "С 2025 года",
     heroTitle: "Планируйте, бронируйте и отслеживайте поездки из одной системы",
-    heroBody: "Erkhet Solar Tours LLC объединяет туристическую информацию, бронирования, платежи, сервисные запросы и управление клиентами в одной платформе.",
+    heroBody:
+      "Erkhet Solar Tours LLC объединяет туристическую информацию, бронирования, платежи, сервисные запросы и управление клиентами в одной платформе.",
     heroPrimaryCta: "Смотреть туры",
     heroSecondaryCta: "Планировать поездку",
     spotlightAlt: "Изображение маршрута",
@@ -124,9 +153,21 @@ const copyByLocale = {
   },
   zh: {
     shortcuts: [
-      { title: "旅行指南", body: "签证、行前准备、目的地建议、政策与 FAQ 一站查看。", href: "/travel-guide" },
-      { title: "预订 / 支付", body: "在账户和 booking center 中跟踪预订、支付记录和状态。", href: "/booking-payment" },
-      { title: "10 步规划", body: "按步骤提交路线、预算与附加服务需求。", href: "/enquire/step/1" },
+      {
+        title: "旅行指南",
+        body: "签证、行前准备、目的地建议、政策与 FAQ 一站查看。",
+        href: "/travel-guide",
+      },
+      {
+        title: "预订 / 支付",
+        body: "在账户中跟踪预订、支付记录和状态。",
+        href: "/booking-payment",
+      },
+      {
+        title: "10 步规划",
+        body: "按步骤提交路线、预算与附加服务需求。",
+        href: "/enquire/step/1",
+      },
     ],
     heroEyebrow: "自 2025 年起",
     heroTitle: "在一个系统中规划、预订并管理蒙古及国际行程",
@@ -161,21 +202,37 @@ export default async function HomePage() {
   const copy = copyByLocale[locale];
   const tours = await safeServerApiFetch<Tour[]>("/tours", []);
   const featured = tours.filter((tour) => tour.featured).slice(0, 3);
+  const localizedFeatured = featured.map((tour) => localizeTour(tour, locale));
+  const leadFeatured = localizedFeatured[0];
   const destinations = await getLocalizedDestinations(locale);
   const services = getLocalizedServices(locale);
   const values = getLocalizedValues(locale);
   const businessDirections = getLocalizedBusinessDirections(locale);
-  const spotlightImage = featured[0]?.coverImage || destinations[1]?.image;
+  const gobiDestination = destinations.find((item) => item.id === "gobi");
+  const useChineseGobiSpotlight = locale === "zh" && Boolean(gobiDestination);
+  const spotlightImage = leadFeatured?.coverImage || destinations[1]?.image;
+  const spotlightTitle = useChineseGobiSpotlight
+    ? `${gobiDestination?.title || "戈壁地区"} / 面向中国游客的精选线路 /`
+    : repairText(leadFeatured?.title || gobiDestination?.title || destinations[1]?.title || "");
+  const spotlightEyebrow = useChineseGobiSpotlight
+    ? gobiDestination?.style || copy.spotlightEyebrow
+    : copy.spotlightEyebrow;
+  const spotlightBody = useChineseGobiSpotlight
+    ? gobiDestination?.summary || copy.spotlightBody
+    : leadFeatured?.summary || copy.spotlightBody;
+  const spotlightPills = useChineseGobiSpotlight
+    ? [gobiDestination?.style || "戈壁线路", gobiDestination?.season || "4 月至 10 月", "沙丘", "峡谷"]
+    : copy.snapshotPills;
 
   return (
     <main>
       <section className="hero restoredHero">
         <div className="container heroGrid">
-          <div className="stackLg">
+          <div className="stackLg heroCopy">
             <p className="heroEyebrow">{copy.heroEyebrow}</p>
-            <h1>{copy.heroTitle}</h1>
-            <p>{copy.heroBody}</p>
-            <div className="btns">
+            <h1 className="heroTitle">{copy.heroTitle}</h1>
+            <p className="heroBody">{copy.heroBody}</p>
+            <div className="btns heroActions">
               <Link className="btn primary" href="/tours">
                 {copy.heroPrimaryCta}
               </Link>
@@ -191,15 +248,28 @@ export default async function HomePage() {
           </div>
 
           <article className="heroSnapshot card">
-            <img className="heroSnapshotImage" src={spotlightImage} alt={copy.spotlightAlt} />
+            {useChineseGobiSpotlight ? (
+              <video
+                className="heroSnapshotImage heroSnapshotVideo"
+                controls
+                loop
+                playsInline
+                preload="metadata"
+                poster="/videos/china-gobi1-poster.jpg"
+              >
+                <source src="/videos/china-gobi1.mp4" type="video/mp4" />
+              </video>
+            ) : (
+              <img className="heroSnapshotImage" src={spotlightImage} alt={copy.spotlightAlt} />
+            )}
             <div className="content stackMd heroSnapshotBody">
               <div>
-                <p className="eyebrow">{copy.spotlightEyebrow}</p>
-                <h3>{repairText(featured[0]?.title || destinations[1]?.title || "")}</h3>
+                <p className="eyebrow">{spotlightEyebrow}</p>
+                <h3>{spotlightTitle}</h3>
               </div>
-              <p>{copy.spotlightBody}</p>
+              <p>{spotlightBody}</p>
               <div className="heroSnapshotMeta">
-                {copy.snapshotPills.map((item) => (
+                {spotlightPills.map((item) => (
                   <span key={item}>{item}</span>
                 ))}
               </div>
@@ -270,8 +340,8 @@ export default async function HomePage() {
             <Link href="/tours">{copy.featuredLink}</Link>
           </div>
           <div className="grid c3">
-            {featured.map((tour) => (
-              <TourCard key={tour.slug} tour={tour} />
+            {localizedFeatured.map((tour) => (
+              <TourCard key={tour.slug} tour={tour} locale={locale} />
             ))}
           </div>
         </div>
@@ -321,4 +391,3 @@ export default async function HomePage() {
     </main>
   );
 }
-

@@ -5,6 +5,8 @@ import { useAuth } from "@/components/auth/AuthProvider";
 import { useLocale } from "@/components/locale/LocaleProvider";
 import { ApiError, authHeaders, browserApiFetch } from "@/lib/api";
 import { siteData } from "@/lib/siteData";
+import { getSupportRequestAutoReply } from "@/lib/support-copy";
+import type { SupportRequest } from "@/lib/types";
 
 const copyByLocale = {
   mn: {
@@ -27,6 +29,8 @@ const copyByLocale = {
     submit: "Илгээх",
     success: "Таны хүсэлт амжилттай илгээгдлээ. Бид тантай аль болох хурдан эргэн холбогдоно.",
     error: "Хүсэлт илгээхэд алдаа гарлаа.",
+    autoReplyTitle: "Автомат хариу",
+    referenceLabel: "Лавлагааны дугаар",
     contactTitle: "Албан ёсны холбоо барих мэдээлэл",
     qrTitle: "Вичат холбоос",
   },
@@ -50,6 +54,8 @@ const copyByLocale = {
     submit: "Send",
     success: "Your request has been submitted. We will contact you as soon as possible.",
     error: "Failed to send request.",
+    autoReplyTitle: "Automatic reply",
+    referenceLabel: "Reference",
     contactTitle: "Official contact details",
     qrTitle: "WeChat QR",
   },
@@ -73,6 +79,8 @@ const copyByLocale = {
     submit: "Отправить",
     success: "Запрос отправлен. Мы свяжемся с вами как можно скорее.",
     error: "Не удалось отправить запрос.",
+    autoReplyTitle: "Автоответ",
+    referenceLabel: "Номер обращения",
     contactTitle: "Официальные контакты",
     qrTitle: "WeChat QR",
   },
@@ -96,6 +104,8 @@ const copyByLocale = {
     submit: "发送",
     success: "请求已提交，我们会尽快与您联系。",
     error: "发送请求失败。",
+    autoReplyTitle: "自动回复",
+    referenceLabel: "请求编号",
     contactTitle: "官方联系方式",
     qrTitle: "微信二维码",
   },
@@ -107,6 +117,7 @@ export default function ContactPage() {
   const copy = useMemo(() => copyByLocale[locale], [locale]);
   const [state, setState] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [message, setMessage] = useState<string | null>(null);
+  const [submittedRequest, setSubmittedRequest] = useState<SupportRequest | null>(null);
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -116,7 +127,7 @@ export default function ContactPage() {
     setMessage(null);
 
     try {
-      await browserApiFetch("/support-requests", {
+      const created = await browserApiFetch<SupportRequest>("/support-requests", {
         method: "POST",
         headers: token ? authHeaders(token) : undefined,
         body: JSON.stringify({
@@ -126,16 +137,21 @@ export default function ContactPage() {
           customerName: formData.get("customerName"),
           customerEmail: formData.get("customerEmail"),
           customerPhone: formData.get("customerPhone"),
+          locale,
         }),
       });
       form.reset();
       setState("success");
       setMessage(copy.success);
+      setSubmittedRequest(created);
     } catch (error) {
       setState("error");
       setMessage(error instanceof ApiError ? error.message : copy.error);
+      setSubmittedRequest(null);
     }
   };
+
+  const autoReply = getSupportRequestAutoReply(locale, submittedRequest);
 
   return (
     <main>
@@ -183,6 +199,15 @@ export default function ContactPage() {
                 </button>
               </form>
               {message ? <p className={`inlineMessage ${state === "error" ? "error" : "success"}`}>{message}</p> : null}
+              {state === "success" && submittedRequest ? (
+                <article className="panel stackSm">
+                  <p className="eyebrow">{copy.autoReplyTitle}</p>
+                  <p className="meta">
+                    <strong>{copy.referenceLabel}:</strong> {submittedRequest.supportReference}
+                  </p>
+                  {autoReply ? <p>{autoReply}</p> : null}
+                </article>
+              ) : null}
             </div>
           </article>
 

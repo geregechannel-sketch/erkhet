@@ -1,4 +1,6 @@
-﻿const bookingStatusMap: Record<string, string> = {
+import type { Locale } from "@/lib/i18n";
+
+const bookingStatusMap: Record<string, string> = {
   pending: "Хүлээгдэж буй",
   confirmed: "Баталгаажсан",
   cancelled: "Цуцлагдсан",
@@ -27,19 +29,37 @@ const operationTypeMap: Record<string, string> = {
   custom: "Захиалгат",
 };
 
-export function formatCurrency(amount?: number, currency = "MNT") {
+const localeTags: Record<Locale, string> = {
+  mn: "mn-MN",
+  en: "en-US",
+  ru: "ru-RU",
+  zh: "zh-CN",
+};
+
+const unknownDurationByLocale: Record<Locale, string> = {
+  mn: "Тодорхойгүй",
+  en: "Not specified",
+  ru: "Не указано",
+  zh: "未说明",
+};
+
+function resolveLocaleTag(locale: Locale) {
+  return localeTags[locale] || localeTags.mn;
+}
+
+export function formatCurrency(amount?: number, currency = "MNT", locale: Locale = "mn") {
   if (typeof amount !== "number") {
     return "";
   }
 
-  return new Intl.NumberFormat("mn-MN", {
+  return new Intl.NumberFormat(resolveLocaleTag(locale), {
     style: "currency",
     currency,
     maximumFractionDigits: 0,
   }).format(amount);
 }
 
-export function formatDate(value?: string | Date | null) {
+export function formatDate(value?: string | Date | null, locale: Locale = "mn") {
   if (!value) {
     return "";
   }
@@ -49,21 +69,41 @@ export function formatDate(value?: string | Date | null) {
     return typeof value === "string" ? value : "";
   }
 
-  return new Intl.DateTimeFormat("mn-MN", {
+  return new Intl.DateTimeFormat(resolveLocaleTag(locale), {
     year: "numeric",
     month: "short",
     day: "numeric",
   }).format(date);
 }
 
-export function describeDuration(days: number, nights: number) {
+export function describeDuration(days: number, nights: number, locale: Locale = "mn") {
   if (days <= 0) {
-    return "Тодорхойгүй";
+    return unknownDurationByLocale[locale];
   }
+
   if (nights > 0) {
-    return `${days} өдөр / ${nights} шөнө`;
+    switch (locale) {
+      case "en":
+        return `${days} days / ${nights} nights`;
+      case "ru":
+        return `${days} дн. / ${nights} ноч.`;
+      case "zh":
+        return `${days} 天 / ${nights} 晚`;
+      default:
+        return `${days} өдөр / ${nights} шөнө`;
+    }
   }
-  return `${days} өдөр`;
+
+  switch (locale) {
+    case "en":
+      return `${days} day${days === 1 ? "" : "s"}`;
+    case "ru":
+      return `${days} дн.`;
+    case "zh":
+      return `${days} 天`;
+    default:
+      return `${days} өдөр`;
+  }
 }
 
 export function formatBookingStatus(status?: string) {
