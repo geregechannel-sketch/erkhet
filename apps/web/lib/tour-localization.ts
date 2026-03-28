@@ -302,6 +302,10 @@ function repairList(items: string[]) {
   return items.map((item) => repairText(item).trim()).filter(Boolean);
 }
 
+function normalizeOverrideKey(value: string) {
+  return repairText(value).trim().toLowerCase();
+}
+
 function normalizeTour(tour: Tour): Tour {
   return {
     ...tour,
@@ -319,9 +323,13 @@ function normalizeTour(tour: Tour): Tour {
 
 export function localizeTour(tour: Tour, locale: Locale): Tour {
   const normalized = normalizeTour(tour);
-  const normalizedSlug = repairText(tour.slug).trim();
+  const normalizedSlug = normalizeOverrideKey(tour.slug);
+  const normalizedTitle = normalizeOverrideKey(tour.title);
   const overrideEntry = Object.entries(localizedTours).find(
-    ([slug]) => repairText(slug).trim() === normalizedSlug,
+    ([slug]) => {
+      const normalizedKey = normalizeOverrideKey(slug);
+      return normalizedKey === normalizedSlug || normalizedKey === normalizedTitle;
+    },
   );
   const override = overrideEntry ? repairDeep(overrideEntry[1]?.[locale]) : undefined;
 

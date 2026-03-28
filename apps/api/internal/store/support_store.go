@@ -3,6 +3,8 @@ package store
 import (
 	"database/sql"
 	"strings"
+
+	"github.com/lib/pq"
 )
 
 const supportSelect = `
@@ -125,19 +127,27 @@ func (r Repository) ListSupportRequestsByUser(userID int64) ([]SupportRequest, e
 	defer rows.Close()
 
 	items := []SupportRequest{}
+	references := []string{}
 	for rows.Next() {
 		request, err := scanSupportRequest(rows)
 		if err != nil {
 			return nil, err
 		}
-		events, err := r.ListSupportEvents(request.SupportReference)
-		if err != nil {
-			return nil, err
-		}
-		request.Events = events
 		items = append(items, request)
+		references = append(references, request.SupportReference)
 	}
-	return items, rows.Err()
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	eventsByReference, err := r.ListSupportEventsByReferences(references)
+	if err != nil {
+		return nil, err
+	}
+	for index := range items {
+		items[index].Events = eventsByReference[items[index].SupportReference]
+	}
+	return items, nil
 }
 
 func (r Repository) ListSupportRequests(filter SupportFilter) ([]SupportRequest, error) {
@@ -250,6 +260,45 @@ func (r Repository) ListSupportEvents(reference string) ([]SupportEvent, error) 
 		events = append(events, event)
 	}
 	return events, rows.Err()
+}
+
+func (r Repository) ListSupportEventsByReferences(references []string) (map[string][]SupportEvent, error) {
+	eventsByReference := make(map[string][]SupportEvent, len(references))
+	if len(references) == 0 {
+		return eventsByReference, nil
+	}
+
+	const query = `
+		select
+			s.support_reference,
+			e.id,
+			e.event_type,
+			e.message,
+			e.actor_label,
+			e.created_at
+		from support_request_events e
+		join support_requests s on s.id = e.support_request_id
+		where s.support_reference = any($1)
+		order by s.support_reference asc, e.created_at asc
+	`
+	rows, err := r.DB.Query(query, pq.Array(references))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var (
+			reference string
+			event     SupportEvent
+		)
+		if err := rows.Scan(&reference, &event.ID, &event.EventType, &event.Message, &event.ActorLabel, &event.CreatedAt); err != nil {
+			return nil, err
+		}
+		eventsByReference[reference] = append(eventsByReference[reference], event)
+	}
+
+	return eventsByReference, rows.Err()
 }
 
 func (r Repository) insertSupportEvent(reference, eventType, message, actorLabel string) error {
