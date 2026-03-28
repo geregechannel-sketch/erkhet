@@ -8,8 +8,8 @@ import { ApiError, authHeaders, browserApiFetch } from "@/lib/api";
 import { formatCurrency, formatDate } from "@/lib/format";
 import type { Booking, Payment } from "@/lib/types";
 
-function formatAmount(value: number, currency: string, priceOnRequest: string) {
-  return value > 0 ? formatCurrency(value, currency) : priceOnRequest;
+function formatAmount(value: number, currency: string, priceOnRequest: string, locale: "mn" | "en" | "ru" | "zh") {
+  return value > 0 ? formatCurrency(value, currency, locale) : priceOnRequest;
 }
 
 const copyByLocale = {
@@ -20,6 +20,7 @@ const copyByLocale = {
     userBody: "Захиалга, төлбөрийн мэдээллээ энэ хэсгээс хараарай.",
     login: "Нэвтрэх",
     register: "Бүртгүүлэх",
+    infoEyebrow: "Мэдээлэл",
     processTitle: "Төлбөрийн мэдээлэл",
     processItems: [
       "Захиалга баталгаажсаны дараа төлбөрийн мэдээллийг танд хүргэнэ.",
@@ -75,6 +76,7 @@ const copyByLocale = {
     userBody: "Check your bookings and payment information here.",
     login: "Sign in",
     register: "Register",
+    infoEyebrow: "Info",
     processTitle: "Payment information",
     processItems: ["Payment details are shared after your booking is confirmed.", "Your information is updated after the payment is completed."],
     liveStatus: "Your details",
@@ -127,6 +129,7 @@ const copyByLocale = {
     userBody: "Смотрите информацию о бронировании и оплате в этом разделе.",
     login: "Войти",
     register: "Регистрация",
+    infoEyebrow: "Информация",
     processTitle: "Информация об оплате",
     processItems: ["После подтверждения бронирования мы отправим вам информацию об оплате.", "После оплаты информация в вашем кабинете обновится."],
     liveStatus: "Ваши данные",
@@ -179,6 +182,7 @@ const copyByLocale = {
     userBody: "您可以在这里查看预订和支付信息。",
     login: "登录",
     register: "注册",
+    infoEyebrow: "信息",
     processTitle: "支付信息",
     processItems: ["预订确认后，我们会向您说明支付信息。", "支付完成后，信息会同步更新。"],
     liveStatus: "您的信息",
@@ -328,7 +332,7 @@ export default function BookingPaymentPage() {
 
             <article className="card bookingInfoCard">
               <div className="content stackSm">
-                <p className="eyebrow">Мэдээлэл</p>
+                <p className="eyebrow">{copy.infoEyebrow}</p>
                 <h3>{copy.processTitle}</h3>
                 <div className="paymentTimeline">
                   {copy.processItems.map((item, index) => (
@@ -396,7 +400,7 @@ export default function BookingPaymentPage() {
                 <div className="sectionHeading compact">
                   <div>
                     <h2>{booking.tourTitle}</h2>
-                    <p className="meta">{booking.bookingReference} • {formatDate(booking.createdAt)}</p>
+                    <p className="meta">{booking.bookingReference} • {formatDate(booking.createdAt, locale)}</p>
                   </div>
                   <div className="stackXs alignEnd">
                     <strong>{formatLocalizedStatus(booking.bookingStatus, copy.bookingStatuses, copy.pending)}</strong>
@@ -405,9 +409,9 @@ export default function BookingPaymentPage() {
                 </div>
 
                 <div className="detailMetaGrid">
-                  <div><strong>{copy.departure}</strong><p>{formatDate(booking.preferredDepartureDate) || copy.pending}</p></div>
+                  <div><strong>{copy.departure}</strong><p>{formatDate(booking.preferredDepartureDate, locale) || copy.pending}</p></div>
                   <div><strong>{copy.participants}</strong><p>{booking.participantCount}</p></div>
-                  <div><strong>{copy.amount}</strong><p>{formatAmount(booking.amount, booking.currency, copy.priceOnRequest)}</p></div>
+                  <div><strong>{copy.amount}</strong><p>{formatAmount(booking.amount, booking.currency, copy.priceOnRequest, locale)}</p></div>
                 </div>
 
                 <div className="rowActions wrapActions">
@@ -429,7 +433,7 @@ export default function BookingPaymentPage() {
                           <strong>{payment.paymentReference}</strong>
                           <span className={`statusPill status-${payment.status}`}>{formatLocalizedStatus(payment.status, copy.paymentStatuses, copy.pending)}</span>
                         </div>
-                        <p className="meta">{payment.method} • {formatAmount(payment.amount, payment.currency, copy.priceOnRequest)}</p>
+                        <p className="meta">{payment.method} • {formatAmount(payment.amount, payment.currency, copy.priceOnRequest, locale)}</p>
                         {payment.status === "pending" ? (
                           <div className="rowActions wrapActions">
                             <button className="btn primary" type="button" onClick={() => void simulate(payment.paymentReference, "success")}>{copy.markPaid}</button>

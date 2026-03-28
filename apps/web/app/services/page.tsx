@@ -521,7 +521,7 @@ function ServicesPageContent() {
                   </div>
                   <p className="meta">{request.serviceReference}</p>
                   <p>{request.destination}</p>
-                  <p className="meta">{formatDate(request.travelDate)} {request.endDate ? `- ${formatDate(request.endDate)}` : ""}</p>
+                  <p className="meta">{formatDate(request.travelDate, locale)} {request.endDate ? `- ${formatDate(request.endDate, locale)}` : ""}</p>
                   <p className="meta">{copy.qtyLine}: {request.quantity}</p>
                   {request.adminNote ? <p className="meta">{copy.adminNote}: {request.adminNote}</p> : null}
                 </article>

@@ -1,46 +1,108 @@
-﻿"use client";
+"use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { useLocale } from "@/components/locale/LocaleProvider";
 import { ApiError, authHeaders, browserApiFetch } from "@/lib/api";
-import { formatDate } from "@/lib/format";
+import { formatDate, formatServiceBookingStatus, formatServiceType } from "@/lib/format";
 import type { ServiceBooking } from "@/lib/types";
 
-const serviceOptions = [
-  { value: "", label: "Бүх үйлчилгээ" },
-  { value: "esim", label: "e-SIM" },
-  { value: "insurance", label: "Даатгал" }
-];
+const copyByLocale = {
+  mn: {
+    eyebrow: "Үйл ажиллагаа",
+    title: "Үйлчилгээний хүсэлтүүд",
+    allServices: "Бүх үйлчилгээ",
+    allStatuses: "Бүх төлөв",
+    filter: "Шүүх",
+    search: "Ref, хэрэглэгч, чиглэлээр хайх",
+    empty: "Одоогоор үйлчилгээний хүсэлт алга.",
+    updated: (reference: string) => `${reference} шинэчлэгдлээ.`,
+    updateFailed: "Шинэчлэхэд алдаа гарлаа.",
+    destination: "Чиглэл",
+    dates: "Огноо",
+    quantity: "Тоо хэмжээ",
+    contact: "Холбоо барих",
+    internalNote: "Дотоод тэмдэглэл",
+    saving: "Хадгалж байна...",
+    save: "Шинэчлэх",
+  },
+  en: {
+    eyebrow: "Operations",
+    title: "Service requests",
+    allServices: "All services",
+    allStatuses: "All statuses",
+    filter: "Filter",
+    search: "Search by ref, user, or destination",
+    empty: "No service requests yet.",
+    updated: (reference: string) => `${reference} was updated.`,
+    updateFailed: "Failed to update service request.",
+    destination: "Destination",
+    dates: "Dates",
+    quantity: "Quantity",
+    contact: "Contact",
+    internalNote: "Internal note",
+    saving: "Saving...",
+    save: "Update",
+  },
+  ru: {
+    eyebrow: "Операции",
+    title: "Сервисные заявки",
+    allServices: "Все услуги",
+    allStatuses: "Все статусы",
+    filter: "Фильтр",
+    search: "Поиск по номеру, пользователю или направлению",
+    empty: "Пока нет сервисных заявок.",
+    updated: (reference: string) => `${reference} обновлён.`,
+    updateFailed: "Не удалось обновить сервисную заявку.",
+    destination: "Направление",
+    dates: "Даты",
+    quantity: "Количество",
+    contact: "Контакт",
+    internalNote: "Внутреннее примечание",
+    saving: "Сохраняем...",
+    save: "Обновить",
+  },
+  zh: {
+    eyebrow: "运营",
+    title: "服务请求",
+    allServices: "全部服务",
+    allStatuses: "全部状态",
+    filter: "筛选",
+    search: "按编号、用户或目的地搜索",
+    empty: "目前还没有服务请求。",
+    updated: (reference: string) => `${reference} 已更新。`,
+    updateFailed: "更新服务请求失败。",
+    destination: "目的地",
+    dates: "日期",
+    quantity: "数量",
+    contact: "联系方式",
+    internalNote: "内部备注",
+    saving: "保存中...",
+    save: "更新",
+  },
+} as const;
 
 const statusOptions = ["new", "in_review", "quoted", "confirmed", "cancelled", "completed"] as const;
+const serviceTypes = ["", "esim", "insurance"] as const;
 
-function statusLabel(status: ServiceBooking["status"]) {
-  switch (status) {
-    case "new":
-      return "Шинэ";
-    case "in_review":
-      return "Хянагдаж байна";
-    case "quoted":
-      return "Үнийн санал";
-    case "confirmed":
-      return "Баталгаажсан";
-    case "cancelled":
-      return "Цуцлагдсан";
-    case "completed":
-      return "Дууссан";
-    default:
-      return status;
-  }
-}
+type MessageTone = "success" | "error";
 
 export default function AdminServiceBookingsPage() {
   const { token } = useAuth();
+  const { locale } = useLocale();
+  const copy = copyByLocale[locale];
   const [items, setItems] = useState<ServiceBooking[]>([]);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
   const [serviceType, setServiceType] = useState("");
   const [message, setMessage] = useState<string | null>(null);
+  const [messageTone, setMessageTone] = useState<MessageTone>("success");
   const [savingRef, setSavingRef] = useState<string | null>(null);
+
+  const serviceOptions = useMemo(
+    () => [{ value: "", label: copy.allServices }, ...serviceTypes.filter(Boolean).map((value) => ({ value, label: formatServiceType(value, locale) }))],
+    [copy.allServices, locale]
+  );
 
   const load = async () => {
     if (!token) return;
@@ -49,7 +111,7 @@ export default function AdminServiceBookingsPage() {
     if (status) params.set("status", status);
     if (serviceType) params.set("serviceType", serviceType);
     const response = await browserApiFetch<ServiceBooking[]>(`/admin/service-bookings${params.toString() ? `?${params.toString()}` : ""}`, {
-      headers: authHeaders(token)
+      headers: authHeaders(token),
     });
     setItems(response);
   };
@@ -74,12 +136,14 @@ export default function AdminServiceBookingsPage() {
       const updated = await browserApiFetch<ServiceBooking>(`/admin/service-bookings/${item.serviceReference}`, {
         method: "PATCH",
         headers: authHeaders(token),
-        body: JSON.stringify({ status: statusValue, adminNote: noteValue })
+        body: JSON.stringify({ status: statusValue, adminNote: noteValue }),
       });
       setItems((current) => current.map((entry) => (entry.serviceReference === updated.serviceReference ? updated : entry)));
-      setMessage(`${updated.serviceReference} шинэчлэгдлээ.`);
+      setMessageTone("success");
+      setMessage(copy.updated(updated.serviceReference));
     } catch (error) {
-      setMessage(error instanceof ApiError ? error.message : "Шинэчлэхэд алдаа гарлаа.");
+      setMessageTone("error");
+      setMessage(error instanceof ApiError ? error.message : copy.updateFailed);
     } finally {
       setSavingRef(null);
     }
@@ -89,8 +153,8 @@ export default function AdminServiceBookingsPage() {
     <div className="stackLg">
       <div className="sectionHeading compact">
         <div>
-          <p className="eyebrow">Operations</p>
-          <h1>Үйлчилгээний хүсэлтүүд</h1>
+          <p className="eyebrow">{copy.eyebrow}</p>
+          <h1>{copy.title}</h1>
         </div>
       </div>
 
@@ -99,7 +163,7 @@ export default function AdminServiceBookingsPage() {
           <input
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="Ref, хэрэглэгч, чиглэлээр хайх"
+            placeholder={copy.search}
           />
           <select value={serviceType} onChange={(event) => setServiceType(event.target.value)}>
             {serviceOptions.map((option) => (
@@ -109,24 +173,24 @@ export default function AdminServiceBookingsPage() {
             ))}
           </select>
           <select value={status} onChange={(event) => setStatus(event.target.value)}>
-            <option value="">Бүх төлөв</option>
+            <option value="">{copy.allStatuses}</option>
             {statusOptions.map((option) => (
               <option key={option} value={option}>
-                {statusLabel(option)}
+                {formatServiceBookingStatus(option, locale)}
               </option>
             ))}
           </select>
           <button className="btn secondary" type="submit">
-            Шүүх
+            {copy.filter}
           </button>
         </form>
-        {message ? <p className="inlineMessage success">{message}</p> : null}
+        {message ? <p className={`inlineMessage ${messageTone}`}>{message}</p> : null}
       </section>
 
       <section className="stackMd">
         {items.length === 0 ? (
           <div className="panel">
-            <p className="meta">Одоогоор үйлчилгээний хүсэлт алга.</p>
+            <p className="meta">{copy.empty}</p>
           </div>
         ) : null}
         {items.map((item) => (
@@ -139,24 +203,24 @@ export default function AdminServiceBookingsPage() {
                 </p>
               </div>
               <div className="stackXs alignEnd">
-                <strong>{statusLabel(item.status)}</strong>
-                <span className="meta">{formatDate(item.createdAt)}</span>
+                <strong>{formatServiceBookingStatus(item.status, locale)}</strong>
+                <span className="meta">{formatDate(item.createdAt, locale)}</span>
               </div>
             </div>
 
             <div className="serviceAdminSummary">
               <p>
-                <strong>Чиглэл:</strong> {item.destination}
+                <strong>{copy.destination}:</strong> {item.destination}
               </p>
               <p>
-                <strong>Огноо:</strong> {item.travelDate}
+                <strong>{copy.dates}:</strong> {item.travelDate}
                 {item.endDate ? ` - ${item.endDate}` : ""}
               </p>
               <p>
-                <strong>Тоо хэмжээ:</strong> {item.quantity}
+                <strong>{copy.quantity}:</strong> {item.quantity}
               </p>
               <p>
-                <strong>Холбоо барих:</strong> {item.contactName} / {item.contactPhone}
+                <strong>{copy.contact}:</strong> {item.contactName} / {item.contactPhone}
               </p>
             </div>
 
@@ -172,13 +236,13 @@ export default function AdminServiceBookingsPage() {
               <select id={`status-${item.serviceReference}`} defaultValue={item.status}>
                 {statusOptions.map((option) => (
                   <option key={option} value={option}>
-                    {statusLabel(option)}
+                    {formatServiceBookingStatus(option, locale)}
                   </option>
                 ))}
               </select>
-              <textarea id={`note-${item.serviceReference}`} defaultValue={item.adminNote || ""} rows={3} placeholder="Дотоод тэмдэглэл" />
+              <textarea id={`note-${item.serviceReference}`} defaultValue={item.adminNote || ""} rows={3} placeholder={copy.internalNote} />
               <button className="btn primary" type="button" disabled={savingRef === item.serviceReference} onClick={() => void onSave(item)}>
-                {savingRef === item.serviceReference ? "Хадгалж байна..." : "Шинэчлэх"}
+                {savingRef === item.serviceReference ? copy.saving : copy.save}
               </button>
             </div>
           </article>
@@ -187,6 +251,3 @@ export default function AdminServiceBookingsPage() {
     </div>
   );
 }
-
-
-

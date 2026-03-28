@@ -75,6 +75,8 @@ const copyByLocale = {
   },
 } as const;
 
+type MessageTone = "success" | "error";
+
 export default function SupportPage() {
   const { user, token } = useAuth();
   const { locale } = useLocale();
@@ -84,6 +86,7 @@ export default function SupportPage() {
   const [requests, setRequests] = useState<SupportRequest[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [message, setMessage] = useState<string | null>(null);
+  const [messageTone, setMessageTone] = useState<MessageTone>("success");
   const [lastSubmitted, setLastSubmitted] = useState<SupportRequest | null>(null);
 
   const loadData = async () => {
@@ -125,9 +128,11 @@ export default function SupportPage() {
       event.currentTarget.reset();
       setLastSubmitted(created);
       await loadData();
+      setMessageTone("success");
       setMessage(copy.success);
     } catch (error) {
       setLastSubmitted(null);
+      setMessageTone("error");
       setMessage(error instanceof ApiError ? error.message : copy.error);
     }
   };
@@ -163,7 +168,7 @@ export default function SupportPage() {
         </form>
       </article>
 
-      {message ? <p className="inlineMessage success">{message}</p> : null}
+      {message ? <p className={`inlineMessage ${messageTone}`}>{message}</p> : null}
 
       {lastSubmitted ? (
         <article className="panel stackSm">
@@ -185,7 +190,7 @@ export default function SupportPage() {
                 <div>
                   <h2>{request.subject}</h2>
                   <p className="meta">
-                    {typeLabels[request.type]} • {statusLabels[request.status]} • {formatDate(request.createdAt)}
+                    {typeLabels[request.type]} • {statusLabels[request.status]} • {formatDate(request.createdAt, locale)}
                   </p>
                 </div>
               </div>
@@ -205,7 +210,7 @@ export default function SupportPage() {
                 <article key={event.id} className="panel stackSm">
                   <div className="rowActions spread">
                     <strong>{event.eventType === "auto_reply" ? copy.autoReplyTitle : event.actorLabel}</strong>
-                    <span className="meta">{formatDate(event.createdAt)}</span>
+                    <span className="meta">{formatDate(event.createdAt, locale)}</span>
                   </div>
                   <p>{event.eventType === "auto_reply" ? getSupportAutoReply(locale, request.type) : event.message}</p>
                 </article>
