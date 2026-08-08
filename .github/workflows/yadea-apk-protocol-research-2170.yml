@@ -1,0 +1,140 @@
+name: Yadea 2.17.0 Protocol Research
+
+on:
+  pull_request:
+    branches: [ main ]
+    paths:
+      - '.github/workflows/yadea-apk-protocol-research-2170.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  research:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Download exact official Yadea 2.17.0 APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p work out
+          expected='9ae329471210f47b73c13d163a07dae30704bd45bb1714cc8538f49aeea9183b'
+          urls=(
+            'https://d.apkpure.net/b/APK/com.yadea.smartmotoen?version=latest'
+            'https://d.apkpure.com/b/APK/com.yadea.smartmotoen?version=latest'
+          )
+          ok=0
+          for url in "${urls[@]}"; do
+            echo "Trying $url"
+            rm -f work/Yadea-2.17.0.apk
+            if curl -fL --retry 3 --retry-delay 3 --connect-timeout 30 --max-time 900 \
+              -A 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/126 Safari/537.36' \
+              "$url" -o work/Yadea-2.17.0.apk; then
+              actual="$(sha256sum work/Yadea-2.17.0.apk | awk '{print $1}')"
+              echo "Downloaded SHA-256: $actual"
+              if [[ "$actual" == "$expected" ]]; then
+                ok=1
+                break
+              fi
+            fi
+          done
+          if [[ "$ok" != 1 ]]; then
+            echo 'Could not download the exact expected APK.' >&2
+            exit 2
+          fi
+          printf 'Package: com.yadea.smartmotoen\nVersion: 2.17.0\nSHA-256: %s\n' "$expected" > out/APK_IDENTITY.txt
+
+      - name: Download JADX
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fL --retry 3 \
+            'https://github.com/skylot/jadx/releases/download/v1.5.2/jadx-1.5.2.zip' \
+            -o work/jadx.zip
+          unzip -q work/jadx.zip -d work/jadx
+          chmod +x work/jadx/bin/jadx
+          work/jadx/bin/jadx --version | tee out/JADX_VERSION.txt
+
+      - name: Decompile APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          work/jadx/bin/jadx \
+            --show-bad-code \
+            --deobf \
+            --deobf-min 2 \
+            --deobf-max 64 \
+            --threads-count 4 \
+            -d work/jadx-out \
+            work/Yadea-2.17.0.apk \
+            > out/JADX_STDOUT.txt 2> out/JADX_STDERR.txt || true
+          test -d work/jadx-out/sources
+
+      - name: Collect exact protocol sources and mappings
+        shell: bash
+        run: |
+          set -euo pipefail
+          src='work/jadx-out/sources'
+          mkdir -p out/sources
+          copy_one() {
+            local rel="$1"
+            if [[ -f "$src/$rel" ]]; then
+              mkdir -p "out/sources/$(dirname "$rel")"
+              cp "$src/$rel" "out/sources/$rel"
+            else
+              echo "MISSING $rel" >> out/MISSING_SOURCES.txt
+            fi
+          }
+          copy_one 'p000/yb0.java'
+          copy_one 'p000/zg0.java'
+          copy_one 'p000/qsa.java'
+          copy_one 'p000/yg0.java'
+          copy_one 'p000/rv8.java'
+          copy_one 'p000/eaa.java'
+          copy_one 'com/yadea/blecontrol/data/BleBicycleCommandManager.java'
+          copy_one 'com/yadea/blecontrol/data/BleBicycleControlCommands.java'
+          copy_one 'com/yadea/blecontrol/data/BleDevice.java'
+
+          grep -RIn -C 12 --include='*.java' \
+            -e 'BLE_CONFIG_SCOOTER_AUTO_HEADLIGHTS' \
+            -e 'BLE_CONFIG_SCOOTER_DRIVING_MODE' \
+            -e 'BLE_CONFIG_SCOOTER_METRIC_IMPERIAL' \
+            -e 'SCOOTER_OPEN_LIGHT' \
+            -e 'SCOOTER_CLOSE_LIGHT' \
+            -e 'SCOOTER_DRIVING_MODE_PUSH' \
+            -e 'SCOOTER_DRIVING_MODE_D' \
+            -e 'SCOOTER_DRIVING_MODE_S' \
+            -e 'SCOOTER_DRIVING_MODE_X' \
+            -e 'SCOOTER_METRIC_IMPERIAL_METRIC' \
+            -e 'SCOOTER_METRIC_IMPERIAL_IMPERIAL' \
+            "$src" > out/COMMAND_CALLSITE_CONTEXT.txt || true
+
+          grep -RIn -C 18 --include='*.java' \
+            -e 'bef8e7e0' -e 'bef8e7e1' \
+            -e 'generateBleCommand' \
+            -e 'TOKEN_USER_NUMBER' \
+            -e 'paring code is not correct' \
+            "$src" > out/HANDSHAKE_AND_COMMAND_CONTEXT.txt || true
+
+          grep -RIn -C 8 --include='*.java' \
+            -e 'm76216c' -e 'm76215b' -e 'm76223j' \
+            "$src/p000/zg0.java" > out/ZG0_HELPER_CONTEXT.txt || true
+
+          find out/sources -type f -print | sort > out/SOURCE_FILE_LIST.txt
+          sha256sum $(find out -type f | sort) > out/SHA256SUMS.txt
+
+      - name: Upload research artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: yadea-2170-protocol-research
+          path: out/
+          retention-days: 7
