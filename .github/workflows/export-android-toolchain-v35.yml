@@ -1,0 +1,54 @@
+name: Export Android 35 Offline Toolchain
+
+on:
+  push:
+    branches: [ temp-android-toolchain-export-v35 ]
+  pull_request:
+    branches: [ main ]
+    paths:
+      - '.github/workflows/export-android-toolchain-v35.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - name: Install Android SDK packages
+        shell: bash
+        run: |
+          set -euo pipefail
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+      - name: Stage offline toolchain
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out/platforms/android-35 out/build-tools/35.0.0/lib out/platform-tools
+          cp "$ANDROID_SDK_ROOT/platforms/android-35/android.jar" out/platforms/android-35/
+          cp "$ANDROID_SDK_ROOT/build-tools/35.0.0/aapt2" out/build-tools/35.0.0/
+          cp "$ANDROID_SDK_ROOT/build-tools/35.0.0/d8" out/build-tools/35.0.0/
+          cp "$ANDROID_SDK_ROOT/build-tools/35.0.0/apksigner" out/build-tools/35.0.0/
+          cp "$ANDROID_SDK_ROOT/build-tools/35.0.0/zipalign" out/build-tools/35.0.0/
+          cp "$ANDROID_SDK_ROOT/build-tools/35.0.0/lib/d8.jar" out/build-tools/35.0.0/lib/
+          cp "$ANDROID_SDK_ROOT/build-tools/35.0.0/lib/apksigner.jar" out/build-tools/35.0.0/lib/ || true
+          cp "$ANDROID_SDK_ROOT/platform-tools/adb" out/platform-tools/
+          cp "$ANDROID_SDK_ROOT/platform-tools/fastboot" out/platform-tools/ || true
+          java -version > out/JAVA_VERSION.txt 2>&1
+          "$ANDROID_SDK_ROOT/build-tools/35.0.0/aapt2" version > out/AAPT2_VERSION.txt
+          "$ANDROID_SDK_ROOT/build-tools/35.0.0/d8" --version > out/D8_VERSION.txt
+          sha256sum $(find out -type f | sort) > out/SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: android-35-offline-toolchain
+          path: out/
+          retention-days: 7
