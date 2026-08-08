@@ -94,17 +94,31 @@ jobs:
               echo "MISSING $rel" >> out/MISSING_SOURCES.txt
             fi
           }
-          copy_one 'p000/yb0.java'
-          copy_one 'p000/zg0.java'
-          copy_one 'p000/qsa.java'
-          copy_one 'p000/yg0.java'
-          copy_one 'p000/rv8.java'
-          copy_one 'p000/eaa.java'
-          copy_one 'com/yadea/blecontrol/data/BleBicycleCommandManager.java'
-          copy_one 'com/yadea/blecontrol/data/BleBicycleControlCommands.java'
-          copy_one 'com/yadea/blecontrol/data/BleDevice.java'
+          for rel in \
+            'p000/yb0.java' \
+            'p000/zg0.java' \
+            'p000/qsa.java' \
+            'p000/yg0.java' \
+            'p000/rv8.java' \
+            'p000/eaa.java' \
+            'p000/mi0.java' \
+            'p000/ng0.java' \
+            'p000/ej0.java' \
+            'p000/kh0.java' \
+            'p000/cg0.java' \
+            'p000/qv8.java' \
+            'p000/nh4.java' \
+            'p000/faa.java' \
+            'p000/ly9.java' \
+            'com/yadea/blecontrol/data/BleBicycleCommandManager.java' \
+            'com/yadea/blecontrol/data/BleBicycleControlCommands.java' \
+            'com/yadea/blecontrol/data/BleDevice.java' \
+            'com/yadea/blecontrol/data/BleParamConstants.java'
+          do
+            copy_one "$rel"
+          done
 
-          grep -RIn -C 12 --include='*.java' \
+          grep -RIn -C 16 --include='*.java' \
             -e 'BLE_CONFIG_SCOOTER_AUTO_HEADLIGHTS' \
             -e 'BLE_CONFIG_SCOOTER_DRIVING_MODE' \
             -e 'BLE_CONFIG_SCOOTER_METRIC_IMPERIAL' \
@@ -118,16 +132,24 @@ jobs:
             -e 'SCOOTER_METRIC_IMPERIAL_IMPERIAL' \
             "$src" > out/COMMAND_CALLSITE_CONTEXT.txt || true
 
-          grep -RIn -C 18 --include='*.java' \
+          grep -RIn -C 24 --include='*.java' \
             -e 'bef8e7e0' -e 'bef8e7e1' \
             -e 'generateBleCommand' \
             -e 'TOKEN_USER_NUMBER' \
             -e 'paring code is not correct' \
+            -e 'm53642E' -e 'm53655V' \
+            -e 'setBikeBondType' -e 'setAppType' -e 'setAppVersion' \
             "$src" > out/HANDSHAKE_AND_COMMAND_CONTEXT.txt || true
 
-          grep -RIn -C 8 --include='*.java' \
-            -e 'm76216c' -e 'm76215b' -e 'm76223j' \
+          grep -RIn -C 14 --include='*.java' \
+            -e 'm71024c' -e 'm71023b' -e 'm71031j' \
             "$src/p000/zg0.java" > out/ZG0_HELPER_CONTEXT.txt || true
+
+          grep -RIn -C 20 --include='*.java' \
+            -e 'bef8e821' -e 'bef8e820' \
+            -e 'writeCharacteristic' -e 'WRITE_TYPE_' \
+            "$src/p000/mi0.java" "$src/p000/ng0.java" "$src/p000/ej0.java" \
+            > out/WRITE_PIPELINE_CONTEXT.txt || true
 
           find out/sources -type f -print | sort > out/SOURCE_FILE_LIST.txt
           sha256sum $(find out -type f | sort) > out/SHA256SUMS.txt
@@ -135,6 +157,6 @@ jobs:
       - name: Upload research artifact
         uses: actions/upload-artifact@v4
         with:
-          name: yadea-2170-protocol-research
+          name: yadea-2170-protocol-research-expanded
           path: out/
           retention-days: 7
