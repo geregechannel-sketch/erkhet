@@ -1,0 +1,124 @@
+name: Build UBCab Turbo 0.29.6 TEST
+
+on:
+  push:
+    branches: [ubcab-v0295-build]
+    paths:
+      - 'ubcab-turbo296/**'
+      - '.github/workflows/build-ubcab-turbo296.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ubcab-v0295-build
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK 35
+        run: yes | sdkmanager 'platforms;android-35' 'build-tools;35.0.0' >/dev/null
+
+      - name: Install Gradle 8.9
+        run: |
+          curl -L --retry 3 -o /tmp/gradle.zip https://services.gradle.org/distributions/gradle-8.9-bin.zip
+          unzip -q /tmp/gradle.zip -d /tmp
+
+      - name: Build APK
+        working-directory: ubcab-turbo296
+        run: /tmp/gradle-8.9/bin/gradle --no-daemon clean assembleDebug
+
+      - name: Package APK and Windows installer
+        run: |
+          set -eux
+          mkdir -p releases /tmp/ubcab296-installer
+          cp ubcab-turbo296/app/build/outputs/apk/debug/app-debug.apk releases/UBCabTurbo-v0.29.6-TEST.apk
+          curl -L --retry 3 -o /tmp/platform-tools.zip https://dl.google.com/android/repository/platform-tools-latest-windows.zip
+          unzip -q /tmp/platform-tools.zip -d /tmp/platform-tools-win
+          cp /tmp/platform-tools-win/platform-tools/adb.exe /tmp/ubcab296-installer/
+          cp /tmp/platform-tools-win/platform-tools/AdbWinApi.dll /tmp/ubcab296-installer/
+          cp /tmp/platform-tools-win/platform-tools/AdbWinUsbApi.dll /tmp/ubcab296-installer/
+          cp releases/UBCabTurbo-v0.29.6-TEST.apk /tmp/ubcab296-installer/
+          cat > /tmp/ubcab296-installer/INSTALL_UBCAB_TURBO_0296_TEST.bat <<'BAT'
+          @echo off
+          setlocal EnableExtensions EnableDelayedExpansion
+          cd /d "%~dp0"
+          adb.exe start-server >nul 2>&1
+          set "DEVICE="
+          set "COUNT=0"
+          for /f "skip=1 tokens=1,2" %%A in ('adb.exe devices') do (
+            if "%%B"=="device" (
+              set "DEVICE=%%A"
+              set /a COUNT+=1
+            )
+          )
+          if "%COUNT%"=="0" (
+            echo ERROR: No authorized Android device. Unlock device, enable USB debugging and tap Allow.
+            adb.exe devices -l
+            pause
+            exit /b 1
+          )
+          if not "%COUNT%"=="1" (
+            echo ERROR: Connect exactly ONE Android device.
+            adb.exe devices -l
+            pause
+            exit /b 1
+          )
+          echo Installing UBCab Turbo v0.29.6 TEST on %DEVICE%...
+          adb.exe -s "%DEVICE%" install -r "UBCabTurbo-v0.29.6-TEST.apk"
+          if errorlevel 1 (
+            echo INSTALL FAILED.
+            pause
+            exit /b 1
+          )
+          echo.
+          echo Installed. This TEST app uses package com.local.ubcabturbo296 and does NOT replace the old helper.
+          echo IMPORTANT: disable old UBCab helper and Tino Accessibility before enabling this TEST service.
+          adb.exe -s "%DEVICE%" shell am start -a android.settings.ACCESSIBILITY_SETTINGS >nul 2>&1
+          pause
+          BAT
+          cat > /tmp/ubcab296-installer/README_FIRST.txt <<'TXT'
+          UBCab Turbo v0.29.6 TEST
+          =========================
+          Separate test package: com.local.ubcabturbo296
+
+          Purpose:
+          - UBCab Driver 4.3.84 / build 708 live-tree test.
+          - After 20:00: tomorrow selected once.
+          - Refresh via real Accessibility ACTION_CLICK node only.
+          - Target cadence 500 ms (2 Hz).
+          - Acceptance probes at 20 / 45 / 80 ms after refresh/events.
+          - No coordinate tap / no dispatchGesture.
+          - <=150 minute scheduled orders blocked when time can be verified.
+          - XL-Van blocked.
+          - Ordinary incoming ride screen and Start/End trip screens are not auto-clicked.
+
+          Before test:
+          1. Disable old UBCab helper Accessibility.
+          2. Disable Tino helper Accessibility.
+          3. Run INSTALL_UBCAB_TURBO_0296_TEST.bat.
+          4. Enable 'UBCab Turbo v0.29.6 TEST' in Accessibility.
+          5. Open UBCab Driver -> Scheduled orders -> List.
+
+          This is a controlled TEST build, not yet a drop-in replacement for v0.29.2 reminder/history functions.
+          TXT
+          (cd /tmp/ubcab296-installer && zip -q -r "$GITHUB_WORKSPACE/releases/UBCabTurbo-Windows-Installer-v0.29.6-TEST.zip" .)
+          (cd releases && sha256sum UBCabTurbo-v0.29.6-TEST.apk UBCabTurbo-Windows-Installer-v0.29.6-TEST.zip > UBCabTurbo-v0.29.6-TEST-SHA256SUMS.txt)
+
+      - name: Commit release artifacts
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add releases/UBCabTurbo-v0.29.6-TEST.apk releases/UBCabTurbo-Windows-Installer-v0.29.6-TEST.zip releases/UBCabTurbo-v0.29.6-TEST-SHA256SUMS.txt
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'Build UBCab Turbo v0.29.6 TEST artifacts [skip ci]'
+          git push origin HEAD:ubcab-v0295-build
