@@ -28,11 +28,11 @@ jobs:
           (cd /tmp/ubcab298 && zip -q -r "$GITHUB_WORKSPACE/releases/UBCabOrderHelper-v0.29.8-RACE-Build-Installer.zip" .)
           (cd releases && sha256sum UBCabOrderHelper-v0.29.8-RACE-Build-Installer.zip > UBCabOrderHelper-v0.29.8-RACE-Build-Installer-SHA256.txt)
 
-      - name: Upload installer artifact
+      - name: Upload direct-extract installer artifact
         uses: actions/upload-artifact@v4
         with:
-          name: UBCabOrderHelper-v0.29.8-RACE-Build-Installer
-          path: releases/UBCabOrderHelper-v0.29.8-RACE-Build-Installer.zip
+          name: UBCabOrderHelper-v0.29.8-RACE-Direct-Extract
+          path: /tmp/ubcab298/*
           if-no-files-found: error
           retention-days: 30
 
